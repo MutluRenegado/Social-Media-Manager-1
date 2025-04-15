@@ -34,8 +34,14 @@ export async function POST(req: NextRequest) {
     const hashtags = hashtagRes.choices[0].message.content;
 
     return NextResponse.json({ summary, hashtags });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API error:', error);
-    return NextResponse.json({ error: 'Failed to summarize or generate hashtags.' }, { status: 500 });
+
+    // Type-check the error and handle it accordingly
+    if (error instanceof Error) {
+      return NextResponse.json({ error: `Failed to summarize or generate hashtags. Error: ${error.message}` }, { status: 500 });
+    } else {
+      return NextResponse.json({ error: 'Failed to summarize or generate hashtags.' }, { status: 500 });
+    }
   }
 }
