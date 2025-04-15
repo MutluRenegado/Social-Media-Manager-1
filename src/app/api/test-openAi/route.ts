@@ -13,8 +13,14 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({ response: chat.choices[0].message.content });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('OpenAI test failed:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+
+    // Type-check the error and handle it accordingly
+    if (error instanceof Error) {
+      return NextResponse.json({ error: `OpenAI test failed: ${error.message}` }, { status: 500 });
+    } else {
+      return NextResponse.json({ error: 'An unknown error occurred.' }, { status: 500 });
+    }
   }
 }
