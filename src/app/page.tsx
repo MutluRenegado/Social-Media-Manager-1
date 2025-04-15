@@ -30,8 +30,13 @@ export default function Home() {
 
       setSummary(data.summary);
       setHashtags(data.hashtags);
-    } catch (error: any) {
-      setSummary(`❌ Error: ${error.message}`);
+    } catch (error: unknown) {
+      // Handle the error properly
+      if (error instanceof Error) {
+        setSummary(`❌ Error: ${error.message}`);
+      } else {
+        setSummary('❌ Unknown error occurred.');
+      }
       setHashtags('');
       console.error('Frontend error:', error);
     } finally {
