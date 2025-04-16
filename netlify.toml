@@ -1,15 +1,8 @@
 # netlify.toml
 
 [build]
-  functions = "netlify/functions"  # Path to your functions directory (adjust if different)
+  command = "npm run build"
+  publish = ".next"
 
 [[plugins]]
-  package = "@netlify/plugin-functions-install-core"  # Plugin to manage functions
-
-[dev]
-  functions = "netlify/functions"  # Path to functions during local development
-
-# Define the function timeout settings
-[[function]]
-  name = "your-function-name"  # Replace with your actual function name
-  timeout = 60  # Timeout in seconds (increase as needed)
+  package = "@netlify/plugin-nextjs"
