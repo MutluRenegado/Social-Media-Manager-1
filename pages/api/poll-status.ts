@@ -1,6 +1,6 @@
-// pages/api/poll.ts
+// pages/api/poll-status.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getFirestore, collection, addDoc, getDocs, query, where } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 
 // Firebase configuration and initialization
@@ -31,17 +31,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        const doc = querySnapshot.docs[0];
-        const pollData = doc.data();
+        const docSnapshot = querySnapshot.docs[0];
+        const pollData = docSnapshot.data();
 
-        // Add vote to the selected option
-        const updatedPoll = { ...pollData };
-        updatedPoll.options[option] = updatedPoll.options[option] + 1 || 1;
+        // Ensure options exists in the pollData
+        if (!pollData.options) {
+          pollData.options = {};
+        }
 
-        // Save the updated poll to Firestore
-        await addDoc(pollRef, updatedPoll);
+        // Increment the vote for the selected option, or initialize if it doesn't exist
+        pollData.options[option] = (pollData.options[option] || 0) + 1;
 
-        return res.status(200).json({ message: 'Vote added successfully' });
+        // Update the existing poll document with the new vote count
+        const pollDocRef = doc(db, 'polls', docSnapshot.id);
+        await updateDoc(pollDocRef, { options: pollData.options });
+
+        return res.status(200).json({ message: 'Vote added successfully', poll: pollData });
       } else {
         return res.status(404).json({ error: 'Poll not found' });
       }
