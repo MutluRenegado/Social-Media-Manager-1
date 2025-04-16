@@ -9,19 +9,77 @@
     button { padding: 10px 20px; margin-top: 1rem; }
     .message { margin-top: 1rem; font-weight: bold; color: green; }
     .error { color: red; }
+    .logged-in { color: green; }
   </style>
 </head>
 <body>
 
   <h2>Blog Post Summarizer & Hashtag Generator</h2>
 
+  <!-- Login/Logout Buttons -->
+  <button id="loginBtn" onclick="login()">Login</button>
+  <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
+  <p id="userInfo"></p>
+
   <textarea id="blogText" placeholder="Paste your blog post here..."></textarea>
   <br>
-  <button onclick="submitText()">Submit</button>
+  <button onclick="submitText()" id="submitBtn" disabled>Submit</button>
 
   <div class="message" id="messageArea"></div>
 
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19.0/auth0-spa-js.min.js"></script>
   <script>
+    let auth0Client;
+    let user;
+
+    // Initialize Auth0 Client
+    async function initAuth0() {
+      auth0Client = await createAuth0Client({
+        domain: 'YOUR_AUTH0_DOMAIN',
+        client_id: 'YOUR_AUTH0_CLIENT_ID',
+      });
+
+      // Check if the user is authenticated
+      if (await auth0Client.isAuthenticated()) {
+        user = await auth0Client.getUser();
+        document.getElementById("userInfo").textContent = `Logged in as: ${user.name}`;
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("logoutBtn").style.display = "inline-block";
+        document.getElementById("submitBtn").disabled = false;
+      } else {
+        document.getElementById("userInfo").textContent = "Not logged in";
+        document.getElementById("loginBtn").style.display = "inline-block";
+        document.getElementById("logoutBtn").style.display = "none";
+        document.getElementById("submitBtn").disabled = true;
+      }
+    }
+
+    // Login function
+    async function login() {
+      await auth0Client.loginWithRedirect();
+    }
+
+    // Logout function
+    async function logout() {
+      await auth0Client.logout({
+        returnTo: window.location.origin,
+      });
+    }
+
+    // Polling for status
+    async function pollResults(userId) {
+      const response = await fetch(`/.netlify/functions/check-status?user_id=${userId}`);
+      const data = await response.json();
+
+      if (data.status === 'done') {
+        document.getElementById('messageArea').textContent = `Summary: ${data.summary}\nHashtags: ${data.hashtags}`;
+        document.getElementById('messageArea').classList.remove("error");
+      } else {
+        setTimeout(() => pollResults(userId), 5000); // Poll every 5 seconds
+      }
+    }
+
+    // Submit text to the backend
     async function submitText() {
       const text = document.getElementById("blogText").value;
       const messageArea = document.getElementById("messageArea");
@@ -34,15 +92,23 @@
       }
 
       try {
+        const token = await auth0Client.getIdToken(); // Get the JWT token
+
         const response = await fetch("/.netlify/functions/generate-background", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` // Send token in Authorization header
+          },
           body: JSON.stringify({ text })
         });
 
         if (response.status === 202 || response.status === 200) {
           messageArea.textContent = "Your request is being processed in the background!";
           messageArea.classList.remove("error");
+
+          // Poll the results once the request is being processed
+          pollResults(user.sub);
         } else {
           const data = await response.json();
           messageArea.textContent = `Error: ${data.error || 'Something went wrong.'}`;
@@ -53,8 +119,10 @@
         messageArea.classList.add("error");
       }
     }
+
+    // Initialize Auth0 client on page load
+    window.onload = initAuth0;
   </script>
 
 </body>
 </html>
-
