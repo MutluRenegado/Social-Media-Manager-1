@@ -1,1 +1,17 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCUa1SEk1qG0TbvuCtw8Ve6VctnlaBAgVQ",
+  authDomain: "netlistore.firebaseapp.com",
+  projectId: "netlistore",
+  storageBucket: "netlistore.firebasestorage.app",
+  messagingSenderId: "167604807583",
+  appId: "1:167604807583:web:589e86070d77ba710cffaa"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
