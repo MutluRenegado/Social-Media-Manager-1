@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Blog Summary & Hashtag Generator</title>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js"></script>
+
   <style>
     body { font-family: Arial; max-width: 600px; margin: auto; padding: 2rem; }
     textarea { width: 100%; height: 200px; }
@@ -31,6 +37,21 @@
   <script>
     let auth0Client;
     let user;
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "YOUR_FIREBASE_API_KEY",
+      authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
+      projectId: "YOUR_FIREBASE_PROJECT_ID",
+      storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
+      appId: "YOUR_FIREBASE_APP_ID",
+    };
+
+    // Initialize Firebase
+    const firebaseApp = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
     // Initialize Auth0 Client
     async function initAuth0() {
