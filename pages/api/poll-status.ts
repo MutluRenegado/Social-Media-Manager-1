@@ -1,100 +1,67 @@
-'use client';
+// pages/api/poll.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getFirestore, collection, addDoc, getDocs, query, where } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 
-import { useState } from 'react';
+// Firebase configuration and initialization
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-export default function Home() {
-  const [text, setText] = useState('');
-  const [summary, setSummary] = useState('');
-  const [hashtags, setHashtags] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [polling, setPolling] = useState(false);
+// Poll data route
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'POST') {
+    // Handle vote submission
+    const { pollId, option } = req.body;
 
-  const handleSubmit = async () => {
-    if (text.trim() === '') return;
-
-    setLoading(true);
-    setSummary('');
-    setHashtags('');
-    setPolling(true);
+    if (!pollId || !option) {
+      return res.status(400).json({ error: 'Poll ID and option are required' });
+    }
 
     try {
-      const res = await fetch('/api/summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      });
+      const pollRef = collection(db, 'polls');
+      const q = query(pollRef, where('pollId', '==', pollId));
+      const querySnapshot = await getDocs(q);
 
-      const data = await res.json();
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0];
+        const pollData = doc.data();
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Something went wrong!');
-      }
+        // Add vote to the selected option
+        const updatedPoll = { ...pollData };
+        updatedPoll.options[option] = updatedPoll.options[option] + 1 || 1;
 
-      const blogPostId = data.blogPostId;
+        // Save the updated poll to Firestore
+        await addDoc(pollRef, updatedPoll);
 
-      // Start polling
-      pollResults(blogPostId);
-    } catch (error: unknown) {
-      // Handle the error properly
-      if (error instanceof Error) {
-        setSummary(`❌ Error: ${error.message}`);
+        return res.status(200).json({ message: 'Vote added successfully' });
       } else {
-        setSummary('❌ Unknown error occurred.');
+        return res.status(404).json({ error: 'Poll not found' });
       }
-      setHashtags('');
-      console.error('Frontend error:', error);
+    } catch (error) {
+      console.error('Error handling poll vote:', error);
+      return res.status(500).json({ error: 'Failed to submit vote' });
     }
-  };
+  } else if (req.method === 'GET') {
+    // Handle fetching poll data
+    try {
+      const pollRef = collection(db, 'polls');
+      const pollSnapshot = await getDocs(pollRef);
+      const polls = pollSnapshot.docs.map((doc) => doc.data());
 
-  // Polling function
-  const pollResults = async (blogPostId: string) => {
-    const pollInterval = setInterval(async () => {
-      const res = await fetch(`/api/poll-status?blogPostId=${blogPostId}`);
-      const data = await res.json();
-
-      if (data.status === 'done') {
-        setSummary(data.summary);
-        setHashtags(data.hashtags);
-        clearInterval(pollInterval);
-        setPolling(false);
-      } else if (data.status === 'processing') {
-        // Continue polling every 5 seconds
-      }
-    }, 5000); // Poll every 5 seconds
-  };
-
-  return (
-    <main className="max-w-2xl mx-auto p-4 space-y-4">
-      <h1 className="text-2xl font-bold">🧠 Blog Summarizer + Hashtag Generator</h1>
-
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Paste your blog post here..."
-        className="w-full border rounded p-2 min-h-[150px]"
-      />
-
-      <button
-        onClick={handleSubmit}
-        disabled={loading || polling}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        {loading || polling ? 'Processing...' : 'Summarize & Generate Hashtags'}
-      </button>
-
-      {summary && (
-        <>
-          <h2 className="text-xl font-semibold">📄 Summary</h2>
-          <p className="bg-gray-100 p-3 rounded whitespace-pre-wrap">{summary}</p>
-        </>
-      )}
-
-      {hashtags && (
-        <>
-          <h2 className="text-xl font-semibold">🏷️ Hashtags</h2>
-          <p className="bg-gray-100 p-3 rounded whitespace-pre-wrap">{hashtags}</p>
-        </>
-      )}
-    </main>
-  );
+      return res.status(200).json({ polls });
+    } catch (error) {
+      console.error('Error fetching polls:', error);
+      return res.status(500).json({ error: 'Failed to fetch polls' });
+    }
+  } else {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 }
