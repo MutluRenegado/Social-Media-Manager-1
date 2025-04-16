@@ -1,12 +1,9 @@
-# netlify.toml
-
 [build]
   command = "npm run build"
   publish = ".next"
 
-[functions]
-  directory = "netlify/functions"
-  external_node_modules = ["openai"]
-
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[functions]
+  directory = "netlify/functions"  # This points to the Netlify functions directory
