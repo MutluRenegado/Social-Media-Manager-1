@@ -12,4 +12,4 @@
 # Define the function timeout settings
 [[function]]
   name = "your-function-name"  # Replace with your actual function name
-  timeout = 30  # Timeout in seconds (increase as needed)
+  timeout = 60  # Timeout in seconds (increase as needed)
