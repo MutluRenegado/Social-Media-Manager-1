@@ -1,3 +1,4 @@
+// pages/api/summarize.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from 'openai';
 import { initializeApp } from 'firebase/app';
@@ -45,17 +46,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     const hashtags = hashtagRes.choices[0].message.content;
+    
+    // Split the hashtags into an array and clean up
+    const hashtagsArray = hashtags.split("\n").map(tag => tag.trim()).filter(tag => tag.length > 0);
 
     // Step 3: Store the blog post, summary, and hashtags in Firestore
     const blogPostRef = await addDoc(collection(db, 'blogPosts'), {
       text,
       summary,
-      hashtags,
+      hashtags: hashtagsArray,
       createdAt: new Date(),
     });
 
     // Step 4: Return the summary and hashtags
-    return res.status(200).json({ summary, hashtags });
+    return res.status(200).json({ summary, hashtags: hashtagsArray });
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error('API error:', error.message);
