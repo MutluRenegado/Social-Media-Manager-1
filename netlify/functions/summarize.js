@@ -4,6 +4,33 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Function to split the text into two parts
+function splitText(text) {
+  const middleIndex = Math.floor(text.length / 2);
+  const part1 = text.slice(0, middleIndex);
+  const part2 = text.slice(middleIndex);
+  return [part1, part2];
+}
+
+// Function to process each part of the text (summarize + generate hashtags)
+async function processTextPart(part) {
+  const summaryRes = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [{ role: 'user', content: `Summarize the following text:\n\n${part}` }],
+  });
+
+  const summary = summaryRes.choices[0].message.content;
+
+  const hashtagRes = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [{ role: 'user', content: `Generate relevant hashtags for this summary:\n\n${summary}` }],
+  });
+
+  const hashtags = hashtagRes.choices[0].message.content;
+
+  return { summary, hashtags };
+}
+
 exports.handler = async function(event, context) {
   if (event.httpMethod !== 'POST') {
     return {
@@ -21,19 +48,18 @@ exports.handler = async function(event, context) {
       };
     }
 
-    const summaryRes = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [{ role: 'user', content: `Summarize the following blog post:\n\n${text}` }],
-    });
+    // Split the text into two parts
+    const [part1, part2] = splitText(text);
 
-    const summary = summaryRes.choices[0].message.content;
+    // Process both parts concurrently
+    const [resultPart1, resultPart2] = await Promise.all([
+      processTextPart(part1),
+      processTextPart(part2),
+    ]);
 
-    const hashtagRes = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [{ role: 'user', content: `Generate 30 relevant and popular hashtags for this blog summary:\n\n${summary}` }],
-    });
-
-    const hashtags = hashtagRes.choices[0].message.content;
+    // Combine the summaries and hashtags from both parts
+    const summary = resultPart1.summary + "\n" + resultPart2.summary;
+    const hashtags = resultPart1.hashtags + "\n" + resultPart2.hashtags;
 
     return {
       statusCode: 200,
