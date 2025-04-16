@@ -1,5 +1,4 @@
 const OpenAI = require('openai');
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -12,24 +11,30 @@ function splitText(text) {
   return [part1, part2];
 }
 
-// Function to process each part of the text (summarize + generate hashtags)
+
+// Function to process each part of the text (summarize & generate hashtags)
 async function processTextPart(part) {
   const summaryRes = await openai.chat.completions.create({
     model: 'gpt-4',
-    messages: [{ role: 'user', content: `Summarize the following text:\n\n${part}` }],
+    messages: [{ role: 'user', content: Summarize the following text:\n\n${part} }],
   });
+
 
   const summary = summaryRes.choices[0].message.content;
 
+
   const hashtagRes = await openai.chat.completions.create({
     model: 'gpt-4',
-    messages: [{ role: 'user', content: `Generate relevant hashtags for this summary:\n\n${summary}` }],
+    messages: [{ role: 'user', content: Generate relevant hashtags for this summary:\n\n${summary} }],
   });
+
 
   const hashtags = hashtagRes.choices[0].message.content;
 
+
   return { summary, hashtags };
 }
+
 
 exports.handler = async function(event, context) {
   if (event.httpMethod !== 'POST') {
@@ -39,32 +44,30 @@ exports.handler = async function(event, context) {
     };
   }
 
+
   try {
+    // Here you would parse the request body to get the text
     const { text } = JSON.parse(event.body);
-    if (!text) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'No text provided' }),
-      };
-    }
 
-    // Split the text into two parts
-    const [part1, part2] = splitText(text);
 
-    // Process both parts concurrently
-    const [resultPart1, resultPart2] = await Promise.all([
-      processTextPart(part1),
-      processTextPart(part2),
-    ]);
+// Split the text into two parts
+const [part1, part2] = splitText(text);
 
-    // Combine the summaries and hashtags from both parts
-    const summary = resultPart1.summary + "\n" + resultPart2.summary;
-    const hashtags = resultPart1.hashtags + "\n" + resultPart2.hashtags;
+// Process both parts concurrently
+const [resultPart1, resultPart2] = await Promise.all([
+  processTextPart(part1),
+  processTextPart(part2),
+]);
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ summary, hashtags }),
-    };
+// Combine the summaries and hashtags from both parts
+const summary = resultPart1.summary + &quot;\n&quot; + resultPart2.summary;
+const hashtags = resultPart1.hashtags + &quot;\n&quot; + resultPart2.hashtags;
+
+return {
+  statusCode: 200,
+  body: JSON.stringify({ summary, hashtags }),
+};
+
   } catch (error) {
     console.error('API error:', error.message);
     return {
