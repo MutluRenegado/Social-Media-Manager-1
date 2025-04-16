@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const hashtags = hashtagRes.choices[0].message.content;
 
     return res.status(200).json({ summary, hashtags });
-  } catch (error: unknown) {
+  } catch (error: 'error') {
     console.error('API error:', error.message);
     return res.status(500).json({ error: 'Failed to summarize or generate hashtags.' });
   }
