@@ -46,12 +46,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     const hashtags = hashtagRes.choices[0].message.content;
-    
+
     // Split the hashtags into an array and clean up
-    const hashtagsArray = hashtags.split("\n").map(tag => tag.trim()).filter(tag => tag.length > 0);
+    const hashtagsArray = hashtags
+      .split('\n')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
 
     // Step 3: Store the blog post, summary, and hashtags in Firestore
-   
+    await addDoc(collection(db, 'blogPosts'), {
       text,
       summary,
       hashtags: hashtagsArray,
@@ -60,6 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Step 4: Return the summary and hashtags
     return res.status(200).json({ summary, hashtags: hashtagsArray });
+
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error('API error:', error.message);
