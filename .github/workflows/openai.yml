@@ -2,7 +2,8 @@ name: OpenAI Script Runner
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - main
   workflow_dispatch:
 
 jobs:
@@ -25,4 +26,3 @@ jobs:
         run: node your-script.js
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
