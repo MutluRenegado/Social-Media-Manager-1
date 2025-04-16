@@ -51,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const hashtagsArray = hashtags.split("\n").map(tag => tag.trim()).filter(tag => tag.length > 0);
 
     // Step 3: Store the blog post, summary, and hashtags in Firestore
-    const blogPostRef = await addDoc(collection(db, 'blogPosts'), {
+   
       text,
       summary,
       hashtags: hashtagsArray,
