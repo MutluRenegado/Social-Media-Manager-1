@@ -1,0 +1,31 @@
+Blog-Post-Hashtag-Builder/
+├── .github/                     # GitHub workflows (optional, depends on CI/CD setup)
+│   └── workflows/                # (empty or not visible in the screenshot)
+├── netlify/                      # Netlify functions and configuration
+│   └── functions/                # Functions directory for Netlify
+│       └── summarize.js          # Netlify function for summarizing blog post
+├── pages/                        # Next.js pages directory
+│   └── api/                      # Next.js API route
+│       └── summarize.ts          # Next.js API route for summarizing (can be empty if using Netlify functions)
+├── public/                       # Public assets (images, favicon, etc.)
+│   ├── favicon.ico
+├── src/                          # Source code for Next.js
+│   └── app/                      # App directory for Next.js 13 (if using app directory)
+│       ├── api/                  # API routes for the app
+│       │   └── summarize/        # This folder contains the Next.js route.ts file
+│       │       └── route.ts      # Next.js API route (optional if using Netlify function)
+│       ├── globals.css           # Global CSS for Next.js app
+│       ├── layout.tsx            # Layout component
+│       ├── page.tsx              # Main page component
+│       └── route.gpt3.5.ts       # GPT-3.5 logic (optional)
+├── .gitignore                    # Git ignore rules for node_modules, build files, etc.
+├── LICENSE                        # License file
+├── README.md                      # Project readme for documentation
+├── eslint.config.mjs              # ESLint configuration file
+├── git/                           # Git-related files and configuration (optional)
+├── netlify.toml                   # Netlify build configuration
+├── next-env.d.ts                  # Next.js environment type definitions
+├── next.config.ts                 # Next.js config file (optional)
+├── openai.yml                     # Configuration for OpenAI API (if applicable)
+├── package-lock.json              # NPM lock file for dependencies
+└── package.json                   # NPM package configuration
