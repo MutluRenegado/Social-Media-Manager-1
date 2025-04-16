@@ -1,31 +1,35 @@
-Blog-Post-Hashtag-Builder/
-├── .github/                     # GitHub workflows (optional, depends on CI/CD setup)
-│   └── workflows/                # (empty or not visible in the screenshot)
-├── netlify/                      # Netlify functions and configuration
-│   └── functions/                # Functions directory for Netlify
-│       └── summarize.js          # Netlify function for summarizing blog post
-├── pages/                        # Next.js pages directory
-│   └── api/                      # Next.js API route
-│       └── summarize.ts          # Next.js API route for summarizing (can be empty if using Netlify functions)
-├── public/                       # Public assets (images, favicon, etc.)
-│   ├── favicon.ico
-├── src/                          # Source code for Next.js
-│   └── app/                      # App directory for Next.js 13 (if using app directory)
-│       ├── api/                  # API routes for the app
-│       │   └── summarize/        # This folder contains the Next.js route.ts file
-│       │       └── route.ts      # Next.js API route (optional if using Netlify function)
-│       ├── globals.css           # Global CSS for Next.js app
-│       ├── layout.tsx            # Layout component
-│       ├── page.tsx              # Main page component
-│       └── route.gpt3.5.ts       # GPT-3.5 logic (optional)
-├── .gitignore                    # Git ignore rules for node_modules, build files, etc.
-├── LICENSE                        # License file
-├── README.md                      # Project readme for documentation
-├── eslint.config.mjs              # ESLint configuration file
-├── git/                           # Git-related files and configuration (optional)
-├── netlify.toml                   # Netlify build configuration
-├── next-env.d.ts                  # Next.js environment type definitions
-├── next.config.ts                 # Next.js config file (optional)
-├── openai.yml                     # Configuration for OpenAI API (if applicable)
-├── package-lock.json              # NPM lock file for dependencies
-└── package.json                   # NPM package configuration
+📦 Blog-Post-Hashtag-Builder/
+├── 📁 .github/
+│   └── 📁 workflows/
+│       └── openai.yaml         # GitHub Actions CI/CD config (e.g., deploy or test via OpenAI)
+│
+├── 📁 netlify/
+│   └── 📁 functions/
+│       ├── generate-background.js  # Serverless function for background generation
+│       └── summarize.js           # Serverless function for summarizing blog posts
+│
+├── 📁 src/
+│   └── 📁 app/
+│       ├── 📁 api/
+│       │   └── summarize.ts       # API route handler for summarization
+│       ├── favicon.ico            # Favicon
+│       ├── globals.css            # Global stylesheet
+│       ├── layout.tsx             # Main layout component
+│       ├── page.tsx               # Home or main page
+│       └── route.gpt3.ts.ts       # GPT-3 related route (possibly summary logic)
+│
+├── 📁 firebase/                   # Firebase-specific configs/functions
+│   ├── firebase-config.ts        # Firebase initialization code
+│   ├── auth.ts                   # Firebase Authentication logic
+│   └── firestore.ts              # Firestore database logic (if needed)
+│
+├── .gitignore                    # Files/folders to ignore in git
+├── LICENSE
+├── README.md                     # Project overview and instructions
+├── netlify.toml                  # Netlify configuration
+├── next-env.d.ts                 # TypeScript definitions for Next.js
+├── next.config.js                # Next.js config file
+├── package.json                  # NPM dependencies and scripts
+├── postcss.config.js             # PostCSS configuration
+├── tailwind.config.js           # Tailwind CSS config
+├── tsconfig.json                 # TypeScript configuration
