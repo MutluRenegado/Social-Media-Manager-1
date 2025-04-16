@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
@@ -12,25 +12,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const { text } = req.body;
-
     if (!text) {
       return res.status(400).json({ error: 'No text provided' });
     }
 
     const summaryRes = await openai.chat.completions.create({
       model: 'gpt-4',
-      messages: [
-        { role: 'user', content: `Summarize the following blog post:\n\n${text}` },
-      ],
+      messages: [{ role: 'user', content: `Summarize the following blog post:\n\n${text}` }],
     });
 
     const summary = summaryRes.choices[0].message.content;
 
     const hashtagRes = await openai.chat.completions.create({
       model: 'gpt-4',
-      messages: [
-        { role: 'user', content: `Generate 30 relevant and popular hashtags for this blog summary:\n\n${summary}` },
-      ],
+      messages: [{ role: 'user', content: `Generate 30 relevant and popular hashtags for this blog summary:\n\n${summary}` }],
     });
 
     const hashtags = hashtagRes.choices[0].message.content;
@@ -41,4 +36,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ error: 'Failed to summarize or generate hashtags.' });
   }
 }
-
