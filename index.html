@@ -1,1 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blog Summary & Hashtag Generator</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: auto; padding: 2rem; }
+    textarea { width: 100%; height: 200px; }
+    button { padding: 10px 20px; margin-top: 1rem; }
+    .message { margin-top: 1rem; font-weight: bold; color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+
+  <h2>Blog Post Summarizer & Hashtag Generator</h2>
+
+  <textarea id="blogText" placeholder="Paste your blog post here..."></textarea>
+  <br>
+  <button onclick="submitText()">Submit</button>
+
+  <div class="message" id="messageArea"></div>
+
+  <script>
+    async function submitText() {
+      const text = document.getElementById("blogText").value;
+      const messageArea = document.getElementById("messageArea");
+      messageArea.textContent = "";
+
+      if (!text.trim()) {
+        messageArea.textContent = "Please enter some text!";
+        messageArea.classList.add("error");
+        return;
+      }
+
+      try {
+        const response = await fetch("/.netlify/functions/generate-background", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
+
+        if (response.status === 202 || response.status === 200) {
+          messageArea.textContent = "Your request is being processed in the background!";
+          messageArea.classList.remove("error");
+        } else {
+          const data = await response.json();
+          messageArea.textContent = `Error: ${data.error || 'Something went wrong.'}`;
+          messageArea.classList.add("error");
+        }
+      } catch (err) {
+        messageArea.textContent = `Request failed: ${err.message}`;
+        messageArea.classList.add("error");
+      }
+    }
+  </script>
+
+</body>
+</html>
 
