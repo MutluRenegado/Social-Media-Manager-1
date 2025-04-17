@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { loginWithGoogle, logout, listenForAuthChanges } from '../../firebase/auth';
 import { db } from '../../firebase/firestore';
 import { setDoc, doc } from 'firebase/firestore';
+import { User } from 'firebase/auth'; // Import the User type
 import Poll from '../components/Poll';
 
 export default function Home() {
@@ -11,7 +12,7 @@ export default function Home() {
   const [summary, setSummary] = useState('');
   const [hashtags, setHashtags] = useState('');
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null); // You can replace 'any' with a proper User type if desired
+  const [user, setUser] = useState<User | null>(null); // Use User | null instead of any
 
   useEffect(() => {
     const unsubscribe = listenForAuthChanges(setUser);
