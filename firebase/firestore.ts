@@ -9,6 +9,10 @@ export const saveDataToFirestore = async (collection: string, documentId: string
     await setDoc(doc(db, collection, documentId), data);
     console.log('Data saved successfully');
   } catch (error) {
-    console.error('Error saving data:', error.message);
+    if (error instanceof Error) {
+      console.error('Error saving data:', error.message);
+    } else {
+      console.error('Unknown error:', error);
+    }
   }
 };
