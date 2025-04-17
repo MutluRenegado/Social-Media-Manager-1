@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { loginWithGoogle, logout, listenForAuthChanges, db } from '../firebase';
+import { loginWithGoogle, logout, listenForAuthChanges, db } from './firebase/firestore';
 import { setDoc, doc } from 'firebase/firestore';
 import Poll from '../components/Poll'; // Import Poll component
 
