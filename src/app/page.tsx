@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { loginWithGoogle, logout, listenForAuthChanges } from '../../firebase/auth';
@@ -118,7 +118,6 @@ export default function Home() {
     </main>
   );
 }
-'use client';
 
 import { useState, useEffect } from 'react';
 import { loginWithGoogle, logout, listenForAuthChanges } from '../../firebase/auth';
