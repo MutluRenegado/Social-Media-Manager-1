@@ -1,7 +1,7 @@
 // pages/api/poll-status.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getFirestore, collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, query, where, updateDoc, doc } from '/firebase/firestore';
+import { initializeApp } from '/firebase/app';
 
 // Firebase configuration and initialization
 const firebaseConfig = {
