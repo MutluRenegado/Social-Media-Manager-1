@@ -1,19 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { loginWithGoogle, logout, listenForAuthChanges } from '/firebase/auth';  // Adjusted import path
-import { db, storeSummary } from '/firebase/firestore';  // Adjusted import path
-import { setDoc, doc } from 'firebase/firestore';
-import Poll from 'src/components/Poll'; // Import Poll component
+import { loginWithGoogle, logout, listenForAuthChanges } from '@/firebase/auth';
+import { storeSummary } from '@/firebase/firestore';
+import Poll from '@/components/Poll'; // Adjusted using alias path
 
 export default function Home() {
   const [text, setText] = useState('');
   const [summary, setSummary] = useState('');
   const [hashtags, setHashtags] = useState('');
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null); // User state for authentication
+  const [user, setUser] = useState<any>(null); // Replace 'any' with proper user type if using TypeScript Firebase types
 
-  // Handle user login state change
   useEffect(() => {
     listenForAuthChanges(setUser);
   }, []);
@@ -41,7 +39,6 @@ export default function Home() {
       setSummary(data.summary);
       setHashtags(data.hashtags);
 
-      // Store in Firestore under the user's UID
       await storeSummary(user, text, data.summary, data.hashtags);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -61,14 +58,14 @@ export default function Home() {
       <h1 className="text-2xl font-bold">🧠 Blog Summarizer + Hashtag Generator</h1>
 
       {user ? (
-        <div>
+        <div className="space-y-2">
           <button
             onClick={logout}
             className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
           >
             Logout
           </button>
-          <p>Welcome, {user.displayName}!</p>
+          <p>Welcome, {user.displayName || 'User'}!</p>
         </div>
       ) : (
         <button
@@ -109,7 +106,6 @@ export default function Home() {
         </>
       )}
 
-      {/* Add Poll Component here */}
       <Poll />
     </main>
   );
