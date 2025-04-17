@@ -1,8 +1,9 @@
-// src/app/page.tsx (or your root page file)
+// src/app/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
-import { loginWithGoogle, logout, listenForAuthChanges, db } from './firebase/firestore';
+import { loginWithGoogle, logout, listenForAuthChanges } from '../../firebase/auth';  // Adjusted import path
+import { db, storeSummary } from '../../firebase/firestore';  // Adjusted import path
 import { setDoc, doc } from 'firebase/firestore';
 import Poll from '../components/Poll'; // Import Poll component
 
@@ -42,12 +43,7 @@ export default function Home() {
       setHashtags(data.hashtags);
 
       // Store in Firestore under the user's UID
-      await setDoc(doc(db, 'users', user.uid, 'summaries', new Date().toISOString()), {
-        summary: data.summary,
-        hashtags: data.hashtags,
-        text,
-        createdAt: new Date(),
-      });
+      await storeSummary(user, text, data.summary, data.hashtags);
     } catch (error: unknown) {
       if (error instanceof Error) {
         setSummary(`❌ Error: ${error.message}`);
