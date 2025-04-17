@@ -1,7 +1,6 @@
 // firebase/firebase-config.ts
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 
-// Ensure environment variables are available
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -11,7 +10,6 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Check if the necessary environment variables are set
 if (
   !firebaseConfig.apiKey ||
   !firebaseConfig.authDomain ||
@@ -23,7 +21,6 @@ if (
   throw new Error('Missing Firebase configuration environment variables');
 }
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
 export default app;
