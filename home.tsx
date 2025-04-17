@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { loginWithGoogle, logout, listenForAuthChanges } from '/firebase/auth';  // Adjusted import path
 import { db, storeSummary } from '/firebase/firestore';  // Adjusted import path
 import { setDoc, doc } from 'firebase/firestore';
-import Poll from '../components/Poll'; // Import Poll component
+import Poll from 'src/components/Poll'; // Import Poll component
 
 export default function Home() {
   const [text, setText] = useState('');
