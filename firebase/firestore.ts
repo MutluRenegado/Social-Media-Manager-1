@@ -6,14 +6,11 @@ const db = getFirestore(app);
 // Save data to Firestore (sets a specific document)
 export const saveDataToFirestore = async (collectionName: string, documentId: string, data: any) => {
   try {
+    // Set the document with the provided data
     await setDoc(doc(db, collectionName, documentId), data);
-    console.log('Data saved successfully');
+    console.log(`Data saved successfully to collection ${collectionName} with document ID ${documentId}`);
   } catch (error) {
-    if (error instanceof Error) {
-      console.error('Error saving data:', error.message);
-    } else {
-      console.error('Unknown error:', error);
-    }
+    console.error('Error saving data:', error instanceof Error ? error.message : error);
   }
 };
 
@@ -21,14 +18,11 @@ export const saveDataToFirestore = async (collectionName: string, documentId: st
 export const updateDataInFirestore = async (collectionName: string, documentId: string, data: any) => {
   try {
     const docRef = doc(db, collectionName, documentId);
+    // Update the document with the provided data
     await updateDoc(docRef, data);
-    console.log('Data updated successfully');
+    console.log(`Data updated successfully in collection ${collectionName} with document ID ${documentId}`);
   } catch (error) {
-    if (error instanceof Error) {
-      console.error('Error updating data:', error.message);
-    } else {
-      console.error('Unknown error:', error);
-    }
+    console.error('Error updating data:', error instanceof Error ? error.message : error);
   }
 };
 
@@ -36,13 +30,10 @@ export const updateDataInFirestore = async (collectionName: string, documentId: 
 export const addDataToFirestore = async (collectionName: string, data: any) => {
   try {
     const collectionRef = collection(db, collectionName);
+    // Add new document with auto-generated ID
     const docRef = await addDoc(collectionRef, data);
-    console.log('Data added successfully with ID:', docRef.id);
+    console.log(`Data added successfully with ID: ${docRef.id}`);
   } catch (error) {
-    if (error instanceof Error) {
-      console.error('Error adding data:', error.message);
-    } else {
-      console.error('Unknown error:', error);
-    }
+    console.error('Error adding data:', error instanceof Error ? error.message : error);
   }
 };
