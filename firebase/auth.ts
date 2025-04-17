@@ -1,15 +1,13 @@
 // firebase/auth.ts
 
-import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    GoogleAuthProvider,
-    signOut,
-    onAuthStateChanged,
-    User,
-} from 'firebase/auth';
+import {getAuth} from 'firebase/auth';
+import {createUserWithEmailAndPassword} from 'firebase/auth';
+import {signInWithEmailAndPassword} from 'firebase/auth';
+import {signInWithPopup} from 'firebase/auth';
+import {GoogleAuthProvider} from 'firebase/auth';
+import {signOut} from 'firebase/auth';
+import {onAuthStateChanged} from 'firebase/auth';
+import {User} from 'firebase/auth';
 
 import app from './firebase-config';
 
