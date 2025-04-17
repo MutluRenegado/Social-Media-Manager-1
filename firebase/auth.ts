@@ -1,46 +1,57 @@
-import { useState, useEffect } from 'react';
-import { loginWithGoogle, logout, listenForAuthChanges } from '../../firebase/auth';
-import { User } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import app from './firebase-config';
 
-export default function Home() {
-  const [user, setUser] = useState<User | null>(null);
+const auth = getAuth(app);
 
-  useEffect(() => {
-    const unsubscribe = listenForAuthChanges(setUser);
-    return () => unsubscribe();
-  }, []);
+// Register user (email/password)
+export const registerUser = async (email: string, password: string): Promise<User | void> => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    console.log('User registered:', userCredential.user);
+    return userCredential.user;
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
+  }
+};
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      console.log('Logged out successfully');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
+// Login user (email/password)
+export const loginUser = async (email: string, password: string): Promise<User | void> => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    console.log('User logged in:', userCredential.user);
+    return userCredential.user;
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
+};
 
-  const handleGoogleLogin = async () => {
-    try {
-      const loggedInUser = await loginWithGoogle();
-      console.log('Logged in with Google:', loggedInUser);
-    } catch (error) {
-      console.error('Google login error:', error);
-    }
-  };
+// ✅ Google login
+export const loginWithGoogle = async (): Promise<User | void> => {
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(auth, provider);
+    console.log('Google user logged in:', result.user);
+    return result.user;
+  } catch (error) {
+    console.error('Google login error:', error);
+    throw error;
+  }
+};
 
-  return (
-    <div>
-      <h1>Welcome to the App</h1>
-      {user ? (
-        <div>
-          <p>Welcome, {user.displayName}!</p>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      ) : (
-        <div>
-          <button onClick={handleGoogleLogin}>Login with Google</button>
-        </div>
-      )}
-    </div>
-  );
-}
+// ✅ Logout
+export const logout = async (): Promise<void> => {
+  try {
+    await signOut(auth);
+    console.log('User logged out');
+  } catch (error) {
+    console.error('Logout error:', error);
+    throw error;
+  }
+};
+
+// ✅ Auth state listener
+export const listenForAuthChanges = (callback: (user: User | null) => void) => {
+  return onAuthStateChanged(auth, callback);
+};
