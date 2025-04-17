@@ -1,4 +1,4 @@
-// lib/firebase.js (or src/firebase/firebase.ts)
+// src/firebase/firebase.js (or src/firebase/firebase.ts)
 
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signOut, signInWithPopup } from "firebase/auth";
