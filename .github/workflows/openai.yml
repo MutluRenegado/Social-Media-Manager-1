@@ -3,8 +3,8 @@ name: OpenAI Script Runner
 on:
   push:
     branches: 
-      - main
-  workflow_dispatch:
+      - main  # Trigger on pushes to the main branch
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
   run-openai-script:
@@ -17,12 +17,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '18'  # Use Node.js 18
 
       - name: Install dependencies
-        run: npm install
+        run: npm install  # Install dependencies from package.json
+
+      - name: Set up environment variables
+        run: |
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+        if: ${{ secrets.OPENAI_API_KEY }}  # Ensure OpenAI API key is only added if available in secrets
 
       - name: Run OpenAI script
-        run: node your-script.js
+        run: node your-script.js  # Run your script (ensure the path is correct)
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # Set the OpenAI API key from secrets if in production
