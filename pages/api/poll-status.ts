@@ -1,7 +1,7 @@
 // pages/api/poll-status.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getFirestore, collection, getDocs, query, where, updateDoc, doc } from '/firebase/firestore';
-import { initializeApp } from '/firebase/app';
+import { getFirestore, collection, getDocs, query, where, updateDoc, doc } from '../../firebase/firestore';
+import { initializeApp } from '../../firebase/app';
 
 // Firebase configuration and initialization
 const firebaseConfig = {
@@ -12,13 +12,13 @@ const firebaseConfig = {
   messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.FIREBASE_APP_ID,
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Poll data route
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    // Handle vote submission
     const { pollId, option } = req.body;
 
     if (!pollId || !option) {
@@ -34,15 +34,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const docSnapshot = querySnapshot.docs[0];
         const pollData = docSnapshot.data();
 
-        // Ensure options exists in the pollData
         if (!pollData.options) {
           pollData.options = {};
         }
 
-        // Increment the vote for the selected option, or initialize if it doesn't exist
         pollData.options[option] = (pollData.options[option] || 0) + 1;
 
-        // Update the existing poll document with the new vote count
         const pollDocRef = doc(db, 'polls', docSnapshot.id);
         await updateDoc(pollDocRef, { options: pollData.options });
 
@@ -55,7 +52,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(500).json({ error: 'Failed to submit vote' });
     }
   } else if (req.method === 'GET') {
-    // Handle fetching poll data
     try {
       const pollRef = collection(db, 'polls');
       const pollSnapshot = await getDocs(pollRef);
