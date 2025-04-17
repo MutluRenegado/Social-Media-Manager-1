@@ -1,8 +1,8 @@
 // pages/api/summarize.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from 'openai';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { initializeApp } from '/firebase/app';
+import { getFirestore, collection, addDoc } from '/firebase/firestore';
 
 // Initialize Firebase
 const firebaseConfig = {
