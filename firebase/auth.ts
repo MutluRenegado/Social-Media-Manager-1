@@ -1,10 +1,24 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, User } from 'firebase/auth';
+// firebase/auth.ts
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  onAuthStateChanged,
+  User,
+} from 'firebase/auth';
+
 import app from './firebase-config';
 
 const auth = getAuth(app);
 
-// Register user (email/password)
-export const registerUser = async (email: string, password: string): Promise<User | void> => {
+// ✅ Register user (email/password)
+export const registerUser = async (
+  email: string,
+  password: string
+): Promise<User> => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     console.log('User registered:', userCredential.user);
@@ -15,8 +29,11 @@ export const registerUser = async (email: string, password: string): Promise<Use
   }
 };
 
-// Login user (email/password)
-export const loginUser = async (email: string, password: string): Promise<User | void> => {
+// ✅ Login user (email/password)
+export const loginUser = async (
+  email: string,
+  password: string
+): Promise<User> => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     console.log('User logged in:', userCredential.user);
@@ -28,7 +45,7 @@ export const loginUser = async (email: string, password: string): Promise<User |
 };
 
 // ✅ Google login
-export const loginWithGoogle = async (): Promise<User | void> => {
+export const loginWithGoogle = async (): Promise<User> => {
   const provider = new GoogleAuthProvider();
   try {
     const result = await signInWithPopup(auth, provider);
@@ -52,6 +69,8 @@ export const logout = async (): Promise<void> => {
 };
 
 // ✅ Auth state listener
-export const listenForAuthChanges = (callback: (user: User | null) => void) => {
+export const listenForAuthChanges = (
+  callback: (user: User | null) => void
+): (() => void) => {
   return onAuthStateChanged(auth, callback);
 };
