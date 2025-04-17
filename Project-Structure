@@ -16,6 +16,7 @@
 │       ├── globals.css            # Global stylesheet
 │       ├── layout.tsx             # Main layout component
 │       ├── page.tsx               # Home or main page
+│       ├── firebase
 │       └── route.gpt3.ts.ts       # GPT-3 related route (possibly summary logic)
 │
 ├── 📁 firebase/                   # Firebase-specific configs/functions
