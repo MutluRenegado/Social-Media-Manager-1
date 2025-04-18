@@ -1,8 +1,8 @@
-"use strict"
+"use strict";
 //summarize
 import { OpenAI } from 'openai';
 import { initializeApp } from '../../firebase/firebase-config'; // Corrected path
-import { getFirestore, collection, addDoc } from '../../firebase/firestore-service'; // Corrected path
+import { getFirestore, collection, addDoc } from '../../firebase/firestore'; // Corrected path
 // Initialize Firebase
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
