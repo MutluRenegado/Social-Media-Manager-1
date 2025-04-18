@@ -1,63 +1,99 @@
-"use strict";
- < !DOCTYPE;
-html >
-    React.createElement("html", { lang: "en" },
-        React.createElement("head", null,
-            React.createElement("meta", { charset: "UTF-8" },
-                React.createElement("title", null, "Blog Summary & Hashtag Generator"),
-                React.createElement(, null),
-                "!-- Firebase SDKs -->",
-                React.createElement("script", { src: "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js" }),
-                React.createElement("script", { src: "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js" }),
-                React.createElement("script", { src: "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js" }),
-                React.createElement("style", null,
-                    "body ",
-                    font - family,
-                    ": Arial; max-width: 600px; margin: auto; padding: 2rem; } textarea ",
-                    width,
-                    ": 100%; height: 200px; } button ",
-                    padding,
-                    ": 10px 20px; margin-top: 1rem; } .message ",
-                    margin - top,
-                    ": 1rem; font-weight: bold; color: green; } .error ",
-                    color,
-                    ": red; }"))),
-        React.createElement("body", null,
-            React.createElement("h2", null, "Blog Post Summarizer & Hashtag Generator"),
-            React.createElement(, null),
-            "!-- Login/Logout Buttons -->",
-            React.createElement("button", { id: "loginBtn" }, "Login"),
-            React.createElement("button", { id: "logoutBtn", style: "display:none;" }, "Logout"),
-            React.createElement("p", { id: "userInfo" }, "Checking auth..."),
-            React.createElement("textarea", { id: "blogText", placeholder: "Paste your blog post here..." }),
-            React.createElement("br", null,
-                React.createElement("button", { onclick: "submitText()", id: "submitBtn", disabled: true }, "Submit"),
-                React.createElement("div", { class: "message", id: "messageArea" }),
-                React.createElement("script", null,
-                    "// Replace with your Firebase config const firebaseConfig = ",
-                    apiKey,
-                    ": process.env.FIREBASE_API_KEY, authDomain: process.env.FIREBASE_AUTH_DOMAIN, projectId: process.env.FIREBASE_PROJECT_ID, storageBucket: process.env.FIREBASE_STORAGE_BUCKET, messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID, appId: process.env.FIREBASE_APP_ID, }; // Initialize Firebase const app = firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const db = firebase.firestore(); // Auth state listener auth.onAuthStateChanged(user => ",
-                ,
-                    "const loginBtn = document.getElementById(\"loginBtn\"); const logoutBtn = document.getElementById(\"logoutBtn\"); const userInfo = document.getElementById(\"userInfo\"); const submitBtn = document.getElementById(\"submitBtn\"); if (user) ",
-                    userInfo.textContent = `Logged in as: ${user.email || user.uid}`,
-                    "; loginBtn.style.display = \"none\"; logoutBtn.style.display = \"inline-block\"; submitBtn.disabled = false; } else ",
-                    userInfo.textContent = "Not logged in",
-                    "; loginBtn.style.display = \"inline-block\"; logoutBtn.style.display = \"none\"; submitBtn.disabled = true; } }); // Basic login prompt (you can replace with Google or a UI) document.getElementById(\"loginBtn\").onclick = async () => ",
-                ,
-                    "const email = prompt(\"Enter email:\"); const password = prompt(\"Enter password:\"); try ",
-                    await auth.signInWithEmailAndPassword(email, password),
-                    "; } catch (err) ",
-                    alert("Login failed: " + err.message),
-                    "; } }; document.getElementById(\"logoutBtn\").onclick = () => ",
-                    auth.signOut(),
-                    "; }; // Polling for results (if needed) async function pollResults(userId) ",
-                ,
-                    "const response = await fetch(`/.netlify/functions/check-status?user_id=$",
-                    userId,
-                    "`); const data = await response.json(); if (data.status === 'done') ",
-                    document.getElementById('messageArea').textContent = `Summary: ${data.summary}\nHashtags: ${data.hashtags}`,
-                    "; } else ",
-                    setTimeout(() => pollResults(userId), 5000),
-                    "; } } // Submit blog text to background function async function submitText() ",
-                ,
-                    "const text = document.getElementById(\"blogText\").value; const messageArea = document.getElementById(\"messageArea\"); message"))));
+'use client'; // if using App Router
+
+import { useEffect, useState } from 'react';
+import { auth, db } from '../lib/firebase';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+
+export default function Home() {
+  const [user, setUser] = useState(null);
+  const [blogText, setBlogText] = useState('');
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = async () => {
+    const email = prompt('Enter email:');
+    const password = prompt('Enter password:');
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      alert('Login failed: ' + err.message);
+    }
+  };
+
+  const handleLogout = () => {
+    signOut(auth);
+  };
+
+  const submitText = async () => {
+    setMessage('');
+    if (!blogText.trim()) {
+      setMessage('Please enter some text!');
+      return;
+    }
+
+    const token = await user.getIdToken();
+    const response = await fetch('/.netlify/functions/generate-background', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ text: blogText })
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      setMessage('Your request is being processed!');
+      pollResults(user.uid);
+    } else {
+      setMessage(`Error: ${result.error || 'Something went wrong'}`);
+    }
+  };
+
+  const pollResults = async (userId) => {
+    const response = await fetch(`/.netlify/functions/check-status?user_id=${userId}`);
+    const data = await response.json();
+    if (data.status === 'done') {
+      setMessage(`Summary: ${data.summary}\nHashtags: ${data.hashtags}`);
+    } else {
+      setTimeout(() => pollResults(userId), 5000);
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: 600, margin: 'auto', padding: '2rem', fontFamily: 'Arial' }}>
+      <h2>Blog Post Summarizer & Hashtag Generator</h2>
+
+      {user ? (
+        <>
+          <p>Logged in as: {user.email}</p>
+          <button onClick={handleLogout}>Logout</button>
+        </>
+      ) : (
+        <>
+          <p>Not logged in</p>
+          <button onClick={handleLogin}>Login</button>
+        </>
+      )}
+
+      <textarea
+        value={blogText}
+        onChange={(e) => setBlogText(e.target.value)}
+        placeholder="Paste your blog post here..."
+        style={{ width: '100%', height: '200px', marginTop: '1rem' }}
+      />
+      <br />
+      <button onClick={submitText} disabled={!user} style={{ marginTop: '1rem' }}>
+        Submit
+      </button>
+
+      {message && <div style={{ marginTop: '1rem', fontWeight: 'bold' }}>{message}</div>}
+    </div>
+  );
+}
