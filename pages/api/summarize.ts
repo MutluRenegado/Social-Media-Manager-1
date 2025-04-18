@@ -2,7 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { OpenAI } from 'openai';
 import { initializeApp } from '../../firebase/firebase-config'; // Corrected path
-import { getFirestore, collection, addDoc } from '../../firebase/firestore'; // Corrected path
+import { getFirestore, collection, addDoc } from '../../firebase/firestore-service'; // Corrected path
 
 // Initialize Firebase
 const firebaseConfig = {
