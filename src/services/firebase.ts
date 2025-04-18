@@ -1,7 +1,7 @@
 // firebase.ts
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, onAuthStateChanged, signOut, signInWithPopup, User } from 'firebase/auth';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider, onAuthStateChanged, signOut, signInWithPopup, User } from 'firebase/firebase-auth';
+import { getFirestore, doc, setDoc } from 'firebase/firestore-service';
 
 // Firebase configuration
 const firebaseConfig = {
