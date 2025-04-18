@@ -1,3 +1,4 @@
+// firebase/firebase-auth.ts
 import { 
   getAuth, 
   createUserWithEmailAndPassword, 
