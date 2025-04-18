@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { loginWithGoogle, logout, listenForAuthChanges } from '../../firebase/auth';
+import { loginWithGoogle, logout, listenForAuthChanges } from '../../firebase/firebase-auth';
 import { db } from '../../firebase/firestore';
 import { setDoc, doc } from 'firebase/firestore';
 import { User } from 'firebase/firebase-auth'; // Import the User type
