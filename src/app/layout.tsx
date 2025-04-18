@@ -24,9 +24,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <head>
+        {/* Use metadata.title and metadata.description */}
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        <link rel="icon" href="/favicon-light.svg" media="(prefers-color-scheme: light)" />
+        <link rel="icon" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>
     </html>
