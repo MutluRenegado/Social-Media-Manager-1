@@ -1,3 +1,4 @@
+"use strict"
 // firebase/firebase-config.ts
 import { initializeApp, getApps } from 'firebase/app';
 const firebaseConfig = {
