@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { loginWithGoogle, logout, listenForAuthChanges } from '@/firebase/auth';
+import { loginWithGoogle, logout, listenForAuthChanges } from '@/firebase/firebase-auth';
 import { storeSummary } from '@/firebase/firestore';
 import Poll from '@/components/Poll'; // Adjusted using alias path
 
