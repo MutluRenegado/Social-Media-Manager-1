@@ -1,4 +1,4 @@
-// firebase/firestore-service.ts
+// firebase/firestore.ts
 import { getFirestore, doc, setDoc, updateDoc, addDoc, collection } from 'firebase/firestore';
 import app from './firebase-config';
 const db = getFirestore(app);
