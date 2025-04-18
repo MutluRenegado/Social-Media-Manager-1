@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 // firebase/auth.ts
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'firebase/auth';
 import app from './firebase-config';
