@@ -1,9 +1,10 @@
+//page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { loginWithGoogle, logout, listenForAuthChanges } from '../../firebase/firebase-auth';
-import { db } from '../../firebase/firestore';
-import { setDoc, doc } from 'firebase/firestore';
+import { db } from '../../firebase/firestore-service';
+import { setDoc, doc } from 'firebase/firestore-service';
 import { User } from 'firebase/firebase-auth'; // Import the User type
 import Poll from '../components/Poll';
 
