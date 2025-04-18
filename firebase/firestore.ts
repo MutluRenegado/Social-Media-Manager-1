@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 // firebase/firestore.ts
 import { getFirestore, doc, setDoc, updateDoc, addDoc, collection } from 'firebase/firestore';
 import app from './firebase-config';
