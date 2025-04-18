@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 //generate-background
 const OpenAI = require('openai');
 const openai = new OpenAI({
