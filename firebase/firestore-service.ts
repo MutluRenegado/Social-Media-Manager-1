@@ -1,4 +1,4 @@
-import { getFirestore, doc, setDoc, updateDoc, addDoc, collection } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, updateDoc, addDoc, collection } from 'firebase/firestore-service';
 import app from './firebase-config';
 const db = getFirestore(app);
 // Save data to Firestore (sets a specific document)
