@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { loginWithGoogle, logout, listenForAuthChanges } from '../../firebase/auth';
 import { db } from '../../firebase/firestore';
 import { setDoc, doc } from 'firebase/firestore';
-import { User } from 'firebase/auth'; // Import the User type
+import { User } from 'firebase/firebase-auth'; // Import the User type
 import Poll from '../components/Poll';
 
 export default function Home() {
