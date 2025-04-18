@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 //poll-status
 import { getFirestore, collection, getDocs, query, where, updateDoc, doc } from '../../firebase/firestore'; // Corrected path
 import { initializeApp } from '../../firebase/firebase-config'; // Corrected path
