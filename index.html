@@ -1,149 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Blog Summary & Hashtag Generator</title>
-  
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-service.js"></script>
-
-  <style>
-    body { font-family: Arial; max-width: 600px; margin: auto; padding: 2rem; }
-    textarea { width: 100%; height: 200px; }
-    button { padding: 10px 20px; margin-top: 1rem; }
-    .message { margin-top: 1rem; font-weight: bold; color: green; }
-    .error { color: red; }
-    .logged-in { color: green; }
-  </style>
-</head>
-<body>
-
-  <h2>Blog Post Summarizer & Hashtag Generator</h2>
-
-  <!-- Login/Logout Buttons -->
-  <button id="loginBtn" onclick="login()">Login</button>
-  <button id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
-  <p id="userInfo"></p>
-
-  <textarea id="blogText" placeholder="Paste your blog post here..."></textarea>
-  <br>
-  <button onclick="submitText()" id="submitBtn" disabled>Submit</button>
-
-  <div class="message" id="messageArea"></div>
-
-  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.19.0/auth0-spa-js.min.js"></script>
-  <script>
-    let auth0Client;
-    let user;
-
-    // Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "YOUR_FIREBASE_API_KEY",
-      authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-      projectId: "YOUR_FIREBASE_PROJECT_ID",
-      storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
-      appId: "YOUR_FIREBASE_APP_ID",
-    };
-
-    // Initialize Firebase
-    const firebaseApp = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // Initialize Auth0 Client
-    async function initAuth0() {
-      auth0Client = await createAuth0Client({
-        domain: 'YOUR_AUTH0_DOMAIN',
-        client_id: 'YOUR_AUTH0_CLIENT_ID',
-      });
-
-      // Check if the user is authenticated
-      if (await auth0Client.isAuthenticated()) {
-        user = await auth0Client.getUser();
-        document.getElementById("userInfo").textContent = `Logged in as: ${user.name}`;
-        document.getElementById("loginBtn").style.display = "none";
-        document.getElementById("logoutBtn").style.display = "inline-block";
-        document.getElementById("submitBtn").disabled = false;
-      } else {
-        document.getElementById("userInfo").textContent = "Not logged in";
-        document.getElementById("loginBtn").style.display = "inline-block";
-        document.getElementById("logoutBtn").style.display = "none";
-        document.getElementById("submitBtn").disabled = true;
-      }
-    }
-
-    // Login function
-    async function login() {
-      await auth0Client.loginWithRedirect();
-    }
-
-    // Logout function
-    async function logout() {
-      await auth0Client.logout({
-        returnTo: window.location.origin,
-      });
-    }
-
-    // Polling for status
-    async function pollResults(userId) {
-      const response = await fetch(`/.netlify/functions/check-status?user_id=${userId}`);
-      const data = await response.json();
-
-      if (data.status === 'done') {
-        document.getElementById('messageArea').textContent = `Summary: ${data.summary}\nHashtags: ${data.hashtags}`;
-        document.getElementById('messageArea').classList.remove("error");
-      } else {
-        setTimeout(() => pollResults(userId), 5000); // Poll every 5 seconds
-      }
-    }
-
-    // Submit text to the backend
-    async function submitText() {
-      const text = document.getElementById("blogText").value;
-      const messageArea = document.getElementById("messageArea");
-      messageArea.textContent = "";
-
-      if (!text.trim()) {
-        messageArea.textContent = "Please enter some text!";
-        messageArea.classList.add("error");
-        return;
-      }
-
-      try {
-        const token = await auth0Client.getIdToken(); // Get the JWT token
-
-        const response = await fetch("/.netlify/functions/generate-background", {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` // Send token in Authorization header
-          },
-          body: JSON.stringify({ text })
-        });
-
-        if (response.status === 202 || response.status === 200) {
-          messageArea.textContent = "Your request is being processed in the background!";
-          messageArea.classList.remove("error");
-
-          // Poll the results once the request is being processed
-          pollResults(user.sub);
-        } else {
-          const data = await response.json();
-          messageArea.textContent = `Error: ${data.error || 'Something went wrong.'}`;
-          messageArea.classList.add("error");
-        }
-      } catch (err) {
-        messageArea.textContent = `Request failed: ${err.message}`;
-        messageArea.classList.add("error");
-      }
-    }
-
-    // Initialize Auth0 client on page load
-    window.onload = initAuth0;
-  </script>
-
-</body>
-</html>
+"use strict";
+ < !DOCTYPE;
+html >
+    React.createElement("html", { lang: "en" },
+        React.createElement("head", null,
+            React.createElement("meta", { charset: "UTF-8" },
+                React.createElement("title", null, "Blog Summary & Hashtag Generator"),
+                React.createElement(, null),
+                "!-- Firebase SDKs -->",
+                React.createElement("script", { src: "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js" }),
+                React.createElement("script", { src: "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js" }),
+                React.createElement("script", { src: "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js" }),
+                React.createElement("style", null,
+                    "body ",
+                    font - family,
+                    ": Arial; max-width: 600px; margin: auto; padding: 2rem; } textarea ",
+                    width,
+                    ": 100%; height: 200px; } button ",
+                    padding,
+                    ": 10px 20px; margin-top: 1rem; } .message ",
+                    margin - top,
+                    ": 1rem; font-weight: bold; color: green; } .error ",
+                    color,
+                    ": red; }"))),
+        React.createElement("body", null,
+            React.createElement("h2", null, "Blog Post Summarizer & Hashtag Generator"),
+            React.createElement(, null),
+            "!-- Login/Logout Buttons -->",
+            React.createElement("button", { id: "loginBtn" }, "Login"),
+            React.createElement("button", { id: "logoutBtn", style: "display:none;" }, "Logout"),
+            React.createElement("p", { id: "userInfo" }, "Checking auth..."),
+            React.createElement("textarea", { id: "blogText", placeholder: "Paste your blog post here..." }),
+            React.createElement("br", null,
+                React.createElement("button", { onclick: "submitText()", id: "submitBtn", disabled: true }, "Submit"),
+                React.createElement("div", { class: "message", id: "messageArea" }),
+                React.createElement("script", null,
+                    "// Replace with your Firebase config const firebaseConfig = ",
+                    apiKey,
+                    ": process.env.FIREBASE_API_KEY, authDomain: process.env.FIREBASE_AUTH_DOMAIN, projectId: process.env.FIREBASE_PROJECT_ID, storageBucket: process.env.FIREBASE_STORAGE_BUCKET, messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID, appId: process.env.FIREBASE_APP_ID, }; // Initialize Firebase const app = firebase.initializeApp(firebaseConfig); const auth = firebase.auth(); const db = firebase.firestore(); // Auth state listener auth.onAuthStateChanged(user => ",
+                ,
+                    "const loginBtn = document.getElementById(\"loginBtn\"); const logoutBtn = document.getElementById(\"logoutBtn\"); const userInfo = document.getElementById(\"userInfo\"); const submitBtn = document.getElementById(\"submitBtn\"); if (user) ",
+                    userInfo.textContent = `Logged in as: ${user.email || user.uid}`,
+                    "; loginBtn.style.display = \"none\"; logoutBtn.style.display = \"inline-block\"; submitBtn.disabled = false; } else ",
+                    userInfo.textContent = "Not logged in",
+                    "; loginBtn.style.display = \"inline-block\"; logoutBtn.style.display = \"none\"; submitBtn.disabled = true; } }); // Basic login prompt (you can replace with Google or a UI) document.getElementById(\"loginBtn\").onclick = async () => ",
+                ,
+                    "const email = prompt(\"Enter email:\"); const password = prompt(\"Enter password:\"); try ",
+                    await auth.signInWithEmailAndPassword(email, password),
+                    "; } catch (err) ",
+                    alert("Login failed: " + err.message),
+                    "; } }; document.getElementById(\"logoutBtn\").onclick = () => ",
+                    auth.signOut(),
+                    "; }; // Polling for results (if needed) async function pollResults(userId) ",
+                ,
+                    "const response = await fetch(`/.netlify/functions/check-status?user_id=$",
+                    userId,
+                    "`); const data = await response.json(); if (data.status === 'done') ",
+                    document.getElementById('messageArea').textContent = `Summary: ${data.summary}\nHashtags: ${data.hashtags}`,
+                    "; } else ",
+                    setTimeout(() => pollResults(userId), 5000),
+                    "; } } // Submit blog text to background function async function submitText() ",
+                ,
+                    "const text = document.getElementById(\"blogText\").value; const messageArea = document.getElementById(\"messageArea\"); message"))));
