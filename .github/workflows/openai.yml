@@ -1,3 +1,4 @@
+// workflows/openai.yml
 name: OpenAI Script Runner
 
 on:
