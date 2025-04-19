@@ -1,7 +1,7 @@
 'use client'; // if using App Router
 
 import { useEffect, useState } from 'react';
-import { auth, db } from '../lib/firebase';
+import { auth, db } from 'lib/firebase'; // ✅ updated path
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 
 export default function Home() {
