@@ -63,13 +63,13 @@ export default function Home() {
             <h1 className="text-2xl font-bold">🤠 Blog Summarizer + Hashtag Generator</h1>
             {user ? (
                 <div>
-                    <button onClick={logout} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    <button onClick={logout} className="bg-red-600 text-white px-4 py-2 rounded-sm hover:bg-red-700">
                         Logout
                     </button>
                     <p>Welcome, {user.displayName}!</p>
                 </div>
             ) : (
-                <button onClick={loginWithGoogle} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                <button onClick={loginWithGoogle} className="bg-blue-600 text-white px-4 py-2 rounded-sm hover:bg-blue-700">
                     Login with Google
                 </button>
             )}
@@ -77,26 +77,26 @@ export default function Home() {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Paste your blog post here..."
-                className="w-full border rounded p-2 min-h-[150px]"
+                className="w-full border rounded-sm p-2 min-h-[150px]"
                 disabled={!user}
             />
             <button
                 onClick={handleSubmit}
                 disabled={loading || !user}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                className="bg-blue-600 text-white px-4 py-2 rounded-sm hover:bg-blue-700"
             >
                 {loading ? 'Summarizing...' : 'Summarize & Generate Hashtags'}
             </button>
             {summary && (
                 <>
                     <h2 className="text-xl font-semibold">📄 Summary</h2>
-                    <p className="bg-gray-100 p-3 rounded whitespace-pre-wrap">{summary}</p>
+                    <p className="bg-gray-100 p-3 rounded-sm whitespace-pre-wrap">{summary}</p>
                 </>
             )}
             {hashtags && (
                 <>
                     <h2 className="text-xl font-semibold">🏷️ Hashtags</h2>
-                    <p className="bg-gray-100 p-3 rounded whitespace-pre-wrap">{hashtags}</p>
+                    <p className="bg-gray-100 p-3 rounded-sm whitespace-pre-wrap">{hashtags}</p>
                 </>
             )}
             <Poll />

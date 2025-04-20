@@ -64,5 +64,5 @@ export default function Poll() {
             React.createElement("div", null, poll.options.map((option) => (React.createElement("div", { key: option.option, className: "flex items-center space-x-2" },
                 React.createElement("input", { type: "radio", id: option.option, name: `poll-option-${poll.pollId}`, value: option.option, onChange: () => setSelectedOption(option.option), checked: selectedOption === option.option, disabled: poll.hasVoted }),
                 React.createElement("label", { htmlFor: option.option }, option.option))))),
-            poll.hasVoted ? (React.createElement("p", { className: "text-green-600 mt-2" }, "You have already voted in this poll.")) : (React.createElement("button", { onClick: () => handleVote(poll.pollId), disabled: loading || !selectedOption || poll.hasVoted, className: "mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" }, loading ? 'Submitting...' : 'Submit Vote')))))));
+            poll.hasVoted ? (React.createElement("p", { className: "text-green-600 mt-2" }, "You have already voted in this poll.")) : (React.createElement("button", { onClick: () => handleVote(poll.pollId), disabled: loading || !selectedOption || poll.hasVoted, className: "mt-2 bg-blue-600 text-white px-4 py-2 rounded-sm hover:bg-blue-700" }, loading ? 'Submitting...' : 'Submit Vote')))))));
 }
