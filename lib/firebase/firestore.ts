@@ -1,12 +1,12 @@
 "use strict";
 // firebase/firestore.ts
 import { getFirestore, doc, setDoc, updateDoc, addDoc, collection } from 'firebase/firestore';
-import app from './firebase-config';
+import app from './firebase-config'; // Import the app from firebase-config
 
-const db = getFirestore(app);
+const db = getFirestore(app); // Initialize Firestore with the Firebase app
 
 // Save data to Firestore (sets a specific document)
-export const saveDataToFirestore = async (collectionName, documentId, data) => {
+export const saveDataToFirestore = async (collectionName: string, documentId: string, data: any) => {
     try {
         await setDoc(doc(db, collectionName, documentId), data);
         console.log(`Data saved successfully to collection ${collectionName} with document ID ${documentId}`);
@@ -17,7 +17,7 @@ export const saveDataToFirestore = async (collectionName, documentId, data) => {
 };
 
 // Update existing document in Firestore
-export const updateDataInFirestore = async (collectionName, documentId, data) => {
+export const updateDataInFirestore = async (collectionName: string, documentId: string, data: any) => {
     try {
         const docRef = doc(db, collectionName, documentId);
         await updateDoc(docRef, data);
@@ -29,7 +29,7 @@ export const updateDataInFirestore = async (collectionName, documentId, data) =>
 };
 
 // Add new document to Firestore (auto-generated ID)
-export const addDataToFirestore = async (collectionName, data) => {
+export const addDataToFirestore = async (collectionName: string, data: any) => {
     try {
         const collectionRef = collection(db, collectionName);
         const docRef = await addDoc(collectionRef, data);

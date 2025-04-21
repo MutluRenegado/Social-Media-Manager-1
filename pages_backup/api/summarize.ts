@@ -1,72 +1,73 @@
-"use strict";
-//summarize
 import { OpenAI } from 'openai';
-import { initializeApp } from '../../lib/firebase/firebase-config'; // Updated path
-import { getFirestore, collection, addDoc } from '../../lib/firebase/firestore'; // Updated path
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, addDoc } from 'lib/firebase/firestore';
+import { firebaseConfig } from 'lib/firebase/firebase-config';
 
-// Initialize Firebase
-const firebaseConfig = {
-    apiKey: process.env.FIREBASE_API_KEY,
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.FIREBASE_APP_ID,
-};
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY!,
 });
 
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const { text, userId } = req.body;
+    if (!text || !userId) {
+      return res.status(400).json({ error: 'Missing blog text or user info' });
     }
-    try {
-        const { text } = req.body;
-        if (!text) {
-            return res.status(400).json({ error: 'No text provided' });
-        }
 
-        // Step 1: Summarize the blog post
-        const summaryRes = await openai.chat.completions.create({
-            model: 'gpt-4',
-            messages: [{ role: 'user', content: `Summarize the following blog post:\n\n${text}` }],
-        });
-        const summary = summaryRes.choices[0].message.content;
+    // 🔹 Split text by period and divide into 2 halves
+    const sentences = text.split('.').filter(s => s.trim() !== '');
+    const mid = Math.floor(sentences.length / 2);
+    const part1 = sentences.slice(0, mid).join('.') + '.';
+    const part2 = sentences.slice(mid).join('.') + '.';
 
-        // Step 2: Generate hashtags
-        const hashtagRes = await openai.chat.completions.create({
-            model: 'gpt-4',
-            messages: [{ role: 'user', content: `Generate 30 relevant and popular hashtags for this blog summary:\n\n${summary}` }],
-        });
-        const hashtags = hashtagRes.choices[0].message.content;
+    const summarize = async (txt: string) => {
+      const res = await openai.chat.completions.create({
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: `Summarize this blog content:\n${txt}` }],
+      });
+      return res.choices[0].message.content?.trim() || '';
+    };
 
-        // Split the hashtags into an array and clean up
-        const hashtagsArray = hashtags
-            .split('\n')
-            .map(tag => tag.trim())
-            .filter(tag => tag.length > 0);
+    const getHashtags = async (summary: string) => {
+      const res = await openai.chat.completions.create({
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: `Generate 2 relevant and popular hashtags (comma-separated, no # symbols):\n${summary}` }],
+      });
 
-        // Step 3: Store the blog post, summary, and hashtags in Firestore
-        await addDoc(collection(db, 'blogPosts'), {
-            text,
-            summary,
-            hashtags: hashtagsArray,
-            createdAt: new Date(),
-        });
+      return res.choices[0].message.content
+        ?.split(',')
+        .map(t => '#' + t.trim().replace(/^#/, ''))
+        .slice(0, 2) || [];
+    };
 
-        // Step 4: Return the summary and hashtags
-        return res.status(200).json({ summary, hashtags: hashtagsArray });
-    }
-    catch (error) {
-        if (error instanceof Error) {
-            console.error('API error:', error.message);
-            return res.status(500).json({ error: 'Failed to summarize or generate hashtags.' });
-        }
-        console.error('Unknown error:', error);
-        return res.status(500).json({ error: 'An unknown error occurred.' });
-    }
+    const summary1 = await summarize(part1);
+    const summary2 = await summarize(part2);
+    const hashtags1 = await getHashtags(summary1);
+    const hashtags2 = await getHashtags(summary2);
+
+    const finalSummary = `${summary1}\n\n${summary2}`;
+    const finalHashtags = [...hashtags1, ...hashtags2];
+
+    // 🔹 Store in Firestore (optional for free tier)
+    await addDoc(collection(db, 'blogPosts'), {
+      userId,
+      originalText: text,
+      summary: finalSummary,
+      hashtags: finalHashtags,
+      createdAt: new Date(),
+      tier: 'free',
+    });
+
+    return res.status(200).json({ summary: finalSummary, hashtags: finalHashtags });
+  } catch (error) {
+    console.error('Summarize API Error:', error);
+    return res.status(500).json({ error: 'Failed to process your blog post.' });
+  }
 }
