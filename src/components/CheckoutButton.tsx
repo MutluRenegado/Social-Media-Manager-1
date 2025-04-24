@@ -1,16 +1,18 @@
-// src/components/CheckoutButton.jsx
+"use client";
 
-'use client';
+import React from "react";
 
-import React from 'react';
+interface CheckoutButtonProps {
+  priceId: string;
+}
 
-const CheckoutButton = ({ priceId }) => {
+const CheckoutButton: React.FC<CheckoutButtonProps> = ({ priceId }) => {
   const handleCheckout = async () => {
     try {
-      const res = await fetch('/api/create-checkout-session', {
-        method: 'POST',
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ priceId }), // Use priceId prop
       });
@@ -19,10 +21,10 @@ const CheckoutButton = ({ priceId }) => {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert('Failed to create checkout session');
+        alert("Failed to create checkout session");
       }
     } catch (err) {
-      console.error('Checkout error:', err);
+      console.error("Checkout error:", err);
     }
   };
 

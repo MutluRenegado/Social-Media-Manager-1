@@ -31,6 +31,17 @@ const tiersData = [
       { topic: "Content Tools", items: ["Custom Blog Post Templates"] },
       { topic: "Monetization", items: ["Paid Plans"] }
     ]
+  },
+  {
+    id: "elite",
+    name: "Elite Plan",
+    description: "For enterprises and power users who need the most advanced features, priority support, and exclusive integrations.",
+    features: [
+      { topic: "All Pro Features", items: ["Includes everything in Pro Plan"] },
+      { topic: "Enterprise Integrations", items: ["Custom API Access", "Dedicated Account Manager", "Advanced Security Features"] },
+      { topic: "Priority Support", items: ["24/7 Support", "Dedicated Support Team", "Faster Response Times"] },
+      { topic: "Customization", items: ["Custom Branding", "Advanced Analytics Dashboards", "Tailored Training Sessions"] }
+    ]
   }
 ];
 
