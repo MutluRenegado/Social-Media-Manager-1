@@ -1,7 +1,12 @@
 "use strict";
 // firebase/firestore.ts
-import { getFirestore, doc, setDoc, updateDoc, addDoc, collection } from 'firebase/firestore';
+import { getFirestore as firebaseGetFirestore, doc, setDoc, updateDoc, addDoc, collection } from 'firebase/firestore';
 import app from './firebase-config'; // Import the app from firebase-config
+
+export const getFirestore = firebaseGetFirestore;
+
+// Export other Firestore utilities if needed
+export { collection, addDoc } from 'firebase/firestore';
 
 const db = getFirestore(app); // Initialize Firestore with the Firebase app
 

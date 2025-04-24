@@ -1,13 +1,15 @@
-'use client'; // if using App Router
+'use client'; // if using Next.js app router
 
 import { useEffect, useState } from 'react';
-import { auth, db } from 'lib/firebase'; // ✅ updated path
+import { auth } from 'lib/firebase'; // adjust path if needed
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [blogText, setBlogText] = useState('');
   const [message, setMessage] = useState('');
+  const [summary, setSummary] = useState('');
+  const [hashtags, setHashtags] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -30,39 +32,55 @@ export default function Home() {
     signOut(auth);
   };
 
-  const submitText = async () => {
+  // Call summarize API
+  const handleSummarize = async () => {
     setMessage('');
+    setSummary('');
     if (!blogText.trim()) {
       setMessage('Please enter some text!');
       return;
     }
-
-    const token = await user.getIdToken();
-    const response = await fetch('/.netlify/functions/generate-background', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ text: blogText })
-    });
-
-    const result = await response.json();
-    if (response.ok) {
-      setMessage('Your request is being processed!');
-      pollResults(user.uid);
-    } else {
-      setMessage(`Error: ${result.error || 'Something went wrong'}`);
+    try {
+      const response = await fetch('/api/summarize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: blogText }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSummary(data.summary);
+        setMessage('Summary generated!');
+      } else {
+        setMessage('Error: ' + (data.error || 'Something went wrong'));
+      }
+    } catch {
+      setMessage('Failed to connect to server.');
     }
   };
 
-  const pollResults = async (userId) => {
-    const response = await fetch(`/.netlify/functions/check-status?user_id=${userId}`);
-    const data = await response.json();
-    if (data.status === 'done') {
-      setMessage(`Summary: ${data.summary}\nHashtags: ${data.hashtags}`);
-    } else {
-      setTimeout(() => pollResults(userId), 5000);
+  // Call hashtags API
+  const handleHashtags = async () => {
+    setMessage('');
+    setHashtags([]);
+    if (!blogText.trim()) {
+      setMessage('Please enter some text!');
+      return;
+    }
+    try {
+      const response = await fetch('/api/hashtag', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: blogText }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setHashtags(data.hashtags);
+        setMessage('Hashtags generated!');
+      } else {
+        setMessage('Error: ' + (data.error || 'Something went wrong'));
+      }
+    } catch {
+      setMessage('Failed to connect to server.');
     }
   };
 
@@ -88,12 +106,31 @@ export default function Home() {
         placeholder="Paste your blog post here..."
         style={{ width: '100%', height: '200px', marginTop: '1rem' }}
       />
-      <br />
-      <button onClick={submitText} disabled={!user} style={{ marginTop: '1rem' }}>
-        Submit
-      </button>
 
-      {message && <div style={{ marginTop: '1rem', fontWeight: 'bold' }}>{message}</div>}
+      <div style={{ marginTop: '1rem' }}>
+        <button onClick={handleSummarize} disabled={!user} style={{ marginRight: '10px' }}>
+          Summarize
+        </button>
+        <button onClick={handleHashtags} disabled={!user}>
+          Generate Hashtags
+        </button>
+      </div>
+
+      {message && <div style={{ marginTop: '1rem', whiteSpace: 'pre-wrap', fontWeight: 'bold' }}>{message}</div>}
+
+      {summary && (
+        <div style={{ marginTop: '1rem' }}>
+          <h3>Summary</h3>
+          <p>{summary}</p>
+        </div>
+      )}
+
+      {hashtags.length > 0 && (
+        <div style={{ marginTop: '1rem' }}>
+          <h3>Hashtags</h3>
+          <p>{hashtags.join(' ')}</p>
+        </div>
+      )}
     </div>
   );
 }

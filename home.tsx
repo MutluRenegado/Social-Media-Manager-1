@@ -1,90 +1,180 @@
 'use client';
-// home.tsx
+
 import { useState, useEffect } from 'react';
-import { loginWithGoogle, logout, listenForAuthChanges } from 'lib/firebase/auth'; // Updated path
-import { storeSummary } from 'lib/firebase/firestore'; // Updated path
-import Poll from '@/components/Poll';
+import { auth } from '@lib/firebase';
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword
+} from 'firebase/auth';
+import { loginWithGoogle } from '@lib/firebase/auth';
 
 export default function Home() {
-    const [text, setText] = useState('');
-    const [summary, setSummary] = useState('');
-    const [hashtags, setHashtags] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [user, setUser] = useState(null); // Replace with proper type if using TypeScript Firebase Auth
+  const [user, setUser] = useState<any>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [showEmailLogin, setShowEmailLogin] = useState(false);
+  const [blogText, setBlogText] = useState('');
+  const [message, setMessage] = useState('');
+  const [summary, setSummary] = useState('');
+  const [hashtags, setHashtags] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        listenForAuthChanges(setUser);
-    }, []);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
-    const handleSubmit = async () => {
-        if (text.trim() === '' || !user) return;
-        setLoading(true);
-        setSummary('');
-        setHashtags('');
-        try {
-            const res = await fetch('/api/summarize', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text }),
-            });
+  const handleLogin = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: any) {
+      alert('Login failed: ' + err.message);
+    }
+  };
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Something went wrong!');
+  const handleSignUp = async () => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (err: any) {
+      alert('Sign-up failed: ' + err.message);
+    }
+  };
 
-            setSummary(data.summary);
-            setHashtags(data.hashtags);
-            await storeSummary(user, text, data.summary, data.hashtags);
-        } catch (error) {
-            setSummary(`❌ ${error instanceof Error ? error.message : 'Unknown error occurred.'}`);
-            setHashtags('');
-            console.error('Frontend error:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleLogout = () => {
+    signOut(auth);
+  };
 
-    return (
-        <main className="max-w-2xl mx-auto p-4 space-y-4">
-            <h1 className="text-2xl font-bold">🧠 Blog Summarizer + Hashtag Generator</h1>
-            {user ? (
-                <div className="space-y-2">
-                    <button onClick={logout} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                        Logout
-                    </button>
-                    <p>Welcome, {user.displayName || 'User'}!</p>
-                </div>
-            ) : (
-                <button onClick={loginWithGoogle} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    Login with Google
-                </button>
-            )}
-            <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Paste your blog post here..."
-                className="w-full border rounded p-2 min-h-[150px]"
-                disabled={!user}
-            />
-            <button
-                onClick={handleSubmit}
-                disabled={loading || !user}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-                {loading ? 'Summarizing...' : 'Summarize & Generate Hashtags'}
-            </button>
-            {summary && (
-                <>
-                    <h2 className="text-xl font-semibold">📄 Summary</h2>
-                    <p className="bg-gray-100 p-3 rounded whitespace-pre-wrap">{summary}</p>
-                </>
-            )}
-            {hashtags && (
-                <>
-                    <h2 className="text-xl font-semibold">🏷️ Hashtags</h2>
-                    <p className="bg-gray-100 p-3 rounded whitespace-pre-wrap">{hashtags}</p>
-                </>
-            )}
-            <Poll />
-        </main>
-    );
+  const submitText = async () => {
+    setMessage('');
+    setSummary('');
+    setHashtags([]);
+
+    if (!blogText.trim()) {
+      setMessage('Please enter some text!');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/summarize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: blogText, email: user.email, tier: 'free' }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setSummary(result.summary);
+        setHashtags(result.hashtags);
+        setMessage('Summary and hashtags generated!');
+      } else {
+        setMessage(`Error: ${result.error || 'Something went wrong'}`);
+      }
+    } catch (err) {
+      setMessage('❌ Something went wrong while connecting to the server.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: 600, margin: 'auto', padding: '2rem', fontFamily: 'Arial' }}>
+      <h2>🧠 Blog Summarizer + Hashtag Generator</h2>
+
+      {user ? (
+        <>
+          <p>Logged in as: {user.email}</p>
+          <button onClick={handleLogout}>Logout</button>
+        </>
+      ) : (
+        <>
+          <p>{isSignUp ? 'Create an account' : 'Not logged in'}</p>
+
+          {!showEmailLogin && (
+            <>
+              <button onClick={() => setShowEmailLogin(true)} style={{ marginBottom: '10px' }}>
+                Login with Email
+              </button>
+              <button onClick={loginWithGoogle} style={{ background: '#007bff', color: 'white', padding: '10px', width: '100%' }}>
+                Login with Google
+              </button>
+            </>
+          )}
+
+          {showEmailLogin && (
+            <>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                style={{ width: '100%', marginBottom: '10px' }}
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                style={{ width: '100%', marginBottom: '10px' }}
+              />
+              <button onClick={isSignUp ? handleSignUp : handleLogin}>
+                {isSignUp ? 'Sign Up' : 'Login'}
+              </button>
+              <button onClick={() => setIsSignUp(!isSignUp)} style={{ marginLeft: '10px' }}>
+                {isSignUp ? 'Switch to Login' : 'Switch to Sign Up'}
+              </button>
+              <button onClick={() => setShowEmailLogin(false)} style={{ marginTop: '10px', display: 'block' }}>
+                Cancel
+              </button>
+            </>
+          )}
+        </>
+      )}
+
+      <hr style={{ margin: '20px 0' }} />
+
+      <textarea
+        value={blogText}
+        onChange={(e) => setBlogText(e.target.value)}
+        placeholder="Paste your blog post here..."
+        style={{ width: '100%', height: '150px', marginBottom: '10px' }}
+        disabled={!user || loading}
+      />
+      <button
+        onClick={submitText}
+        disabled={!user || loading}
+        style={{ backgroundColor: '#007bff', color: 'white', padding: '10px', width: '100%' }}
+      >
+        {loading ? 'Summarizing...' : 'Summarize & Generate Hashtags'}
+      </button>
+
+      {message && (
+        <div style={{ marginTop: '20px', whiteSpace: 'pre-line' }}>
+          <strong>{message}</strong>
+        </div>
+      )}
+
+      {summary && (
+        <div style={{ marginTop: '20px' }}>
+          <h3>📄 Summary</h3>
+          <p>{summary}</p>
+        </div>
+      )}
+
+      {hashtags.length > 0 && (
+        <div style={{ marginTop: '20px' }}>
+          <h3>🏷️ Hashtags</h3>
+          <p>{hashtags.join(' ')}</p>
+        </div>
+      )}
+    </div>
+  );
 }

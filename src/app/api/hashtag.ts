@@ -22,23 +22,28 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'No text provided' });
     }
 
-    const summaryRes = await openai.chat.completions.create({
+    const hashtagRes = await openai.chat.completions.create({
       model: 'gpt-4',
-      messages: [{ role: 'user', content: `Summarize the following blog post:\n\n${text}` }],
+      messages: [{ role: 'user', content: `Generate 30 relevant and popular hashtags for this text:\n\n${text}` }],
     });
 
-    const summary = summaryRes.choices[0].message.content;
+    const hashtags = hashtagRes.choices[0].message.content;
+
+    const hashtagsArray = hashtags
+      .split('\n')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
 
     // Optional: Save to Firestore
-    await addDoc(collection(db, 'blogSummaries'), {
+    await addDoc(collection(db, 'blogHashtags'), {
       text,
-      summary,
+      hashtags: hashtagsArray,
       createdAt: new Date(),
     });
 
-    return res.status(200).json({ summary });
+    return res.status(200).json({ hashtags: hashtagsArray });
   } catch (error) {
-    console.error('Summarize API error:', error instanceof Error ? error.message : error);
-    return res.status(500).json({ error: 'Failed to summarize text.' });
+    console.error('Hashtag API error:', error instanceof Error ? error.message : error);
+    return res.status(500).json({ error: 'Failed to generate hashtags.' });
   }
 }
