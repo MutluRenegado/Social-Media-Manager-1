@@ -4,16 +4,50 @@ blog-post-hb/
 │   └── favicon.ico
 ├── src/                     # Main source code
 │   ├── app/                 # App logic and routes
-│   │   ├── animations/
-│   │   ├── balances/
-│   │   ├── datasets/
-│   │   ├── hashtags/
-│   │   ├── pageAgents/
-│   │   ├── metaAgents/
-│   │   └── topics/
+│   │   ├── cancelled/
+│   │   │   └── page.tsx
+│   │   ├── hashtag-manager/
+│   │   │   └── page.tsx
+│   │   ├── home/
+│   │   │   └── page.tsx
+│   │   ├── members/
+│   │   │   └── page.tsx
+│   │   ├── pricing/
+│   │   │   └── page.tsx
+│   │   ├── success/
+│   │   │   └── page.tsx
+│   │   ├── summarize/
+│   │   │   └── page.tsx
+│   │   ├── api/
+│   │   │   ├── hashtag/
+│   │   │   │   └── route.ts
+│   │   │   ├── summarize/
+│   │   │   │   └── route.ts
+│   │   │   ├── poll-status/
+│   │   │   │   └── route.ts
+│   │   │   └── textstore/
+│   │   │       └── route.ts
+│   │   ├── favicon.io
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
 │   ├── components/          # Reusable UI components
+│   │   ├── BlogPostForms.tsx
+│   │   ├── CheckoutButton.jsx
+│   │   ├── CheckoutButton.tsx
+│   │   ├── codePasteBox.jsx
+│   │   ├── CodeSplitterByDot.tsx
+│   │   ├── Footer.tsx
+│   │   ├── hashtagEmailSender.jsx
+│   │   ├── Header.tsx
+│   │   ├── Menu.tsx
+│   │   ├── Poll.tsx
+│   │   └── PricingTiers.jsx
 │   ├── constants/           # Constant values (e.g., enums, keys)
 │   ├── firebase/            # Firebase integration (auth, firestore, config)
+│   │   ├── auth.ts
+│   │   ├── firebase-config.ts
+│   │   └── firestore.ts
 │   ├── services/            # API and business logic services
 │   │   ├── hashtags.ts
 │   │   └── name.ts
@@ -22,7 +56,7 @@ blog-post-hb/
 │   └── index.tsx            # App entry point
 ├── .eslintrc.js             # ESLint config
 ├── .gitignore
-├── netlify.toml            # Netlify deployment config
+├── netlify.toml             # Netlify deployment config
 ├── package.json
 ├── postcss.config.js
 ├── tailwind.config.js
