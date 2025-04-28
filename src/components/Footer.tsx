@@ -2,8 +2,10 @@ import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <footer style={{ padding: "1rem", backgroundColor: "#282c34", color: "white", marginTop: "auto" }}>
-      <p>© 2024 My Website. All rights reserved.</p>
+    <footer className="p-4 bg-gray-900 text-white mt-auto text-center text-sm">
+      <p>
+        © 2025 ANM Social Media Manager. Developed and maintained by ANM Digital. All rights reserved.
+      </p>
     </footer>
   );
 };

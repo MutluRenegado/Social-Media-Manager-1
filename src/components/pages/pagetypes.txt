@@ -1,0 +1,11 @@
+Depending on how you want the app structure, pages might be like:
+
+src/pages/index.tsx → Home (use Layout + new components)
+
+src/pages/pricing.tsx → Pricing Page (with PricingTiers and UpgradeButton)
+
+src/pages/dashboard.tsx → Dashboard (with CardStatistics, Polls, etc.)
+
+src/pages/contact.tsx → Contact Form (if you have FormComponent)
+
+src/pages/upgrade.tsx → Upgrade to Pro (just UpgradeButton and pricing info)

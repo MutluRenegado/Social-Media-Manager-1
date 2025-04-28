@@ -1,4 +1,6 @@
-'use client';
+'use client'
+
+//src/components/BlogPostForms
 
 import React, { useState } from 'react';
 
@@ -14,7 +16,9 @@ const BlogPostForm: React.FC<BlogPostFormProps> = ({ user }) => {
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // prevent page reload
+
     if (text.trim() === '' || !user) return;
 
     setLoading(true);
@@ -42,31 +46,41 @@ const BlogPostForm: React.FC<BlogPostFormProps> = ({ user }) => {
   };
 
   return (
-    <div>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Enter your blog post here..."
-      />
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Processing...' : 'Submit'}
-      </button>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow">
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Enter your blog post here..."
+          className="p-4 border rounded-lg resize-none min-h-[150px] focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition disabled:opacity-50"
+        >
+          {loading ? 'Processing...' : 'Submit'}
+        </button>
+      </form>
 
       {summary && (
-        <div>
-          <h2>Summary</h2>
-          <p>{summary}</p>
+        <div className="mt-6">
+          <h2 className="text-xl font-bold mb-2">Summary</h2>
+          <p className="text-gray-700">{summary}</p>
         </div>
       )}
 
-      {Array.isArray(hashtags) && (
-        <p className="bg-gray-100 p-3 rounded whitespace-pre-wrap">
-          {hashtags.map((tag) => (
-            <span key={tag} className="mr-2">
-              {tag}
-            </span>
-          ))}
-        </p>
+      {Array.isArray(hashtags) && hashtags.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-2">Hashtags</h2>
+          <div className="bg-gray-100 p-3 rounded flex flex-wrap gap-2">
+            {hashtags.map((tag) => (
+              <span key={tag} className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

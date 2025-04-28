@@ -1,16 +1,22 @@
+'use client';
+
 import React, { useState } from "react";
-import { db } from "./firebase"; // Adjust path if needed
+import { db } from "@/firebase"; // Adjust path if needed
 import { collection, doc, setDoc, serverTimestamp } from "firebase/firestore";
 
-export default function CodeSplitterByDot({ userId = "anonymous" }) {
+interface CodeSplitterByDotProps {
+  userId?: string;
+}
+
+export default function CodeSplitterByDot({ userId = "anonymous" }: CodeSplitterByDotProps) {
   const [code, setCode] = useState("");
 
   const handleSplitAndSend = async () => {
-    if (!code) return;
+    if (!code.trim()) return;
 
-    // Find split index based on last '.' near middle
     const mid = Math.floor(code.length / 2);
     let splitIndex = code.lastIndexOf(".", mid);
+
     if (splitIndex === -1) {
       splitIndex = code.indexOf(".", mid);
       if (splitIndex === -1) {
@@ -25,7 +31,6 @@ export default function CodeSplitterByDot({ userId = "anonymous" }) {
     try {
       const codePartsCollection = collection(db, "codes", userId, "codeParts");
 
-      // Save part 1 with metadata
       await setDoc(doc(codePartsCollection, "part1"), {
         text: part1,
         order: 1,
@@ -33,7 +38,6 @@ export default function CodeSplitterByDot({ userId = "anonymous" }) {
         createdAt: serverTimestamp(),
       });
 
-      // Save part 2 with metadata
       await setDoc(doc(codePartsCollection, "part2"), {
         text: part2,
         order: 2,
@@ -49,16 +53,21 @@ export default function CodeSplitterByDot({ userId = "anonymous" }) {
   };
 
   return (
-    <div>
+    <div className="max-w-3xl mx-auto mt-6">
       <textarea
         rows={10}
         cols={80}
         value={code}
         onChange={(e) => setCode(e.target.value)}
         placeholder="Paste your text or code here..."
+        className="w-full p-2 border border-gray-300 rounded resize-y font-mono"
       />
-      <br />
-      <button onClick={handleSplitAndSend}>Split & Send to Firebase</button>
+      <button
+        onClick={handleSplitAndSend}
+        className="mt-3 px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+      >
+        Split & Send to Firebase
+      </button>
     </div>
   );
 }

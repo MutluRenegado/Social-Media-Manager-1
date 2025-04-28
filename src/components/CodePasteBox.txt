@@ -1,0 +1,38 @@
+'use client';
+
+import React, { useState } from "react";
+
+export default function CodePasteBox() {
+  const [code, setCode] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCode(e.target.value);
+  };
+
+  const handleSubmit = () => {
+    alert("Code pasted:\n\n" + code.slice(0, 300) + (code.length > 300 ? "..." : ""));
+    // You can send `code` to your API or processing function here
+  };
+
+  return (
+    <div className="max-w-xl mx-auto mt-5 font-sans">
+      <label htmlFor="codeInput" className="block mb-2 font-bold">
+        Paste your code below:
+      </label>
+      <textarea
+        id="codeInput"
+        value={code}
+        onChange={handleChange}
+        placeholder="Paste your code here..."
+        rows={15}
+        className="w-full font-mono text-sm p-2 rounded border border-gray-300 resize-y box-border"
+      />
+      <button
+        onClick={handleSubmit}
+        className="mt-3 px-5 py-2 text-base rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+      >
+        Submit Code
+      </button>
+    </div>
+  );
+}

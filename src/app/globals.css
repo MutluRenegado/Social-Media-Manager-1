@@ -1,44 +1,87 @@
-@import 'tailwindcss';
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f0f2f5;       /* light gray background like template */
+  --foreground: #333333;       /* dark text */
+  --primary-color: #2c3e50;    /* dark blue header/nav color */
+  --font-sans: 'Inter', Arial, Helvetica, sans-serif;
+  --font-mono: monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary-color: #1e2a38;
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  margin: 0;
+}
+
+/* Fix default border color */
+*,
+::after,
+::before,
+::backdrop,
+::file-selector-button {
+  border-color: currentColor;
+}
+
+/* Custom styles for template components */
+
+/* Header */
+.page-header {
+  background-color: var(--primary-color);
+  @apply text-white font-bold text-2xl p-5;
+}
+
+/* Sidebar nav */
+.sidebar-nav {
+  @apply bg-white rounded-lg p-5 m-4;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+}
+
+.sidebar-nav h2 {
+  @apply m-0 mb-4 font-semibold text-lg;
+}
+
+.sidebar-nav ul {
+  @apply list-none p-0;
+}
+
+.sidebar-nav ul li {
+  @apply mb-2;
+}
+
+.sidebar-nav ul li a {
+  color: var(--primary-color);
+  @apply no-underline font-semibold hover:underline;
+}
+
+/* Main content */
+.page-main {
+  @apply bg-white rounded-lg p-6 m-4;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+}
+
+/* Grid 3 columns */
+.grid-3-cols {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-4 mt-6;
+}
+
+/* Cards */
+.card {
+  @apply bg-white p-5 rounded-lg shadow;
+}
+
+/* Footer */
+.page-footer {
+  @apply text-center text-gray-600 text-sm py-3 mt-8 border-t border-gray-300;
 }
