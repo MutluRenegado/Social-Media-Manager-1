@@ -18,13 +18,20 @@ export async function POST(request: NextRequest) {
     // Generate 5 hashtags for the input text
     const hashtagRes = await openai.chat.completions.create({
       model: 'gpt-4',
-      messages: [{ role: 'user', content: `Generate 5 relevant and popular hashtags for this blog post:\n\n${text}` }],
+      messages: [
+        {
+          role: 'user',
+          content: `Generate 5 relevant and popular hashtags for this blog post. List only the hashtags, one per line (no explanations or numbering):\n\n${text}`,
+        },
+      ],
     });
     const hashtagsRaw = hashtagRes.choices[0].message?.content ?? '';
+    // Clean up output: remove empty lines and ensure each string starts with '#'
     const hashtags = hashtagsRaw
       .split('\n')
       .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
+      .filter(tag => tag.length > 0)
+      .map(tag => (tag.startsWith('#') ? tag : `#${tag.replace(/^#*/, '')}`)); // ensure # prefix
 
     // Return hashtags to frontend
     return NextResponse.json({ hashtags });
