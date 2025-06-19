@@ -3,7 +3,7 @@ body {
   font-family: system-ui, sans-serif;
   background: #f4f6f9;
   color: #222;
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s, background 0.3s, color 0.3s;
 }
 .sidebar {
   position: fixed;
@@ -15,8 +15,14 @@ body {
   flex-direction: column;
   box-shadow: 2px 0 8px #0001;
   justify-content: space-between;
-  transition: width 0.3s ease;
+  transition: width 0.3s, left 0.3s, opacity 0.3s;
   overflow: hidden;
+  z-index: 100;
+}
+.sidebar.hidden {
+  left: -230px;
+  opacity: 0;
+  pointer-events: none;
 }
 .sidebar.collapsed {
   width: 60px;
@@ -97,7 +103,10 @@ body {
   min-height: 100vh;
   padding: 2rem;
   background: #f4f6f9;
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s, background 0.3s;
+}
+.main.expanded {
+  margin-left: 0;
 }
 .main.collapsed {
   margin-left: 60px;
@@ -111,7 +120,7 @@ body {
   justify-content: space-between;
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 10;
 }
 .header h1 {
   font-size: 1.5rem;
@@ -127,6 +136,7 @@ body {
   width: 28px;
   height: 22px;
   user-select: none;
+  transition: all 0.3s;
 }
 .hamburger span {
   height: 3px;
@@ -143,6 +153,48 @@ body {
 }
 .hamburger.active span:nth-child(3) {
   transform: translateY(-8px) rotate(-45deg);
+}
+.mode-toggle {
+  font-size: 1.2em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 1rem;
+  color: inherit;
+}
+body.dark {
+  background: #181a20;
+  color: #fff;
+}
+body.dark .main {
+  background: #181a20;
+  color: #fff;
+}
+body.dark .sidebar {
+  background: #13151a;
+  color: #fff;
+}
+body.dark .sidebar a {
+  color: #b0b6b9;
+}
+body.dark .sidebar a.active,
+body.dark .sidebar a:hover {
+  background: #232632;
+  color: #fff;
+  border-left: 3px solid #38bdf8;
+}
+body.dark .header {
+  background: #2d2f36;
+  color: #fff;
+}
+body.dark .hamburger span {
+  background: #fff;
+}
+body.dark .logout-btn {
+  background: #b91c1c;
+}
+body.dark .logout-btn:hover {
+  background: #991b1b;
 }
 @media (max-width: 700px) {
   .sidebar { width: 60px; }
