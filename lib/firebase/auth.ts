@@ -1,4 +1,3 @@
-// lib/firebase/auth.ts
 "use strict";
 
 import {
