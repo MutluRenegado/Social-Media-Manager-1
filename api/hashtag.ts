@@ -1,12 +1,14 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import OpenAI from 'openai';
 
+// Initialize OpenAI
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Only initialize once
+// Initialize Firebase Admin only once
 if (!getApps().length) {
   initializeApp({
     credential: cert({
@@ -16,18 +18,14 @@ if (!getApps().length) {
     }),
   });
 }
-
 const db = getFirestore();
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    const { text } = req.body;
+    const body = await request.json();
+    const { text } = body;
     if (!text) {
-      return res.status(400).json({ error: 'No text provided' });
+      return NextResponse.json({ error: 'No text provided' }, { status: 400 });
     }
 
     const hashtagRes = await openai.chat.completions.create({
@@ -35,17 +33,17 @@ export default async function handler(req, res) {
       messages: [
         {
           role: 'user',
-          content: `Generate 30 relevant and popular hashtags for this text:\n\n${text}`,
+          content: `Generate 30 relevant and popular hashtags for this text. List only the hashtags, one per line:\n\n${text}`,
         },
       ],
     });
 
-    const hashtags = hashtagRes.choices[0].message.content;
-
-    const hashtagsArray = hashtags
+    const hashtagsRaw = hashtagRes.choices[0].message?.content ?? '';
+    const hashtagsArray = hashtagsRaw
       .split('\n')
       .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
+      .filter((tag) => tag.length > 0)
+      .map((tag) => (tag.startsWith('#') ? tag : `#${tag.replace(/^#*/, '')}`)); // Guarantee hashtags
 
     await db.collection('blogHashtags').add({
       text,
@@ -53,9 +51,9 @@ export default async function handler(req, res) {
       createdAt: new Date(),
     });
 
-    return res.status(200).json({ hashtags: hashtagsArray });
+    return NextResponse.json({ hashtags: hashtagsArray });
   } catch (error) {
     console.error('Hashtag API error:', error);
-    return res.status(500).json({ error: 'Failed to generate hashtags.' });
+    return NextResponse.json({ error: 'Failed to generate hashtags.' }, { status: 500 });
   }
 }
