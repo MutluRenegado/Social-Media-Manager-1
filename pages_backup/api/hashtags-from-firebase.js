@@ -1,7 +1,8 @@
+import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
-import nodemailer from 'nodemailer';  // or any email lib you want
+import nodemailer from 'nodemailer';
 import { firebaseConfig } from 'lib/firebase/firebase-config';
 
 const app = initializeApp(firebaseConfig);
@@ -9,7 +10,7 @@ const db = getFirestore(app);
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Set up your email transporter (example with Gmail SMTP, replace with your config)
+// Set up your email transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -18,39 +19,36 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function generateHashtags(text) {
+async function generateHashtags(text: string): Promise<string[]> {
   const response = await openai.chat.completions.create({
     model: 'gpt-4',
-    messages: [{ role: 'user', content: `Generate 5 relevant and popular hashtags for this text:\n\n${text}` }],
+    messages: [{ role: 'user', content: `Generate 5 relevant and popular hashtags for this text. List only the hashtags, one per line:\n\n${text}` }],
   });
 
-  const hashtags = response.choices[0].message.content;
+  const hashtags = response.choices[0].message.content || '';
   return hashtags
     .split('\n')
     .map(tag => tag.trim())
     .filter(tag => tag.length > 0)
+    .map(tag => (tag.startsWith('#') ? tag : `#${tag.replace(/^#*/, '')}`))
     .slice(0, 5);
 }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const { userEmail } = req.body;
-  if (!userEmail) {
-    return res.status(400).json({ error: 'User email is required' });
-  }
-
+export async function POST(request: NextRequest) {
   try {
+    const { userEmail } = await request.json();
+    if (!userEmail) {
+      return NextResponse.json({ error: 'User email is required' }, { status: 400 });
+    }
+
     // Query the two most recent parts from your 'texts' collection
     const q = query(collection(db, 'texts'), orderBy('createdAt', 'desc'), limit(2));
     const querySnapshot = await getDocs(q);
-    const docs = [];
-    querySnapshot.forEach(doc => docs.push(doc.data()));
+    const docs: { content: string }[] = [];
+    querySnapshot.forEach(doc => docs.push(doc.data() as { content: string }));
 
     if (docs.length < 2) {
-      return res.status(400).json({ error: 'Not enough text parts found in Firebase' });
+      return NextResponse.json({ error: 'Not enough text parts found in Firebase' }, { status: 400 });
     }
 
     // The docs array is in descending order, reverse to get original order
@@ -67,22 +65,22 @@ export default async function handler(req, res) {
 
     // Prepare email content
     const emailContent = `
-      Here is the combined text and hashtags you requested:
+Here is the combined text and hashtags you requested:
 
-      Part 1:
-      ${part1}
+Part 1:
+${part1}
 
-      Hashtags:
-      ${hashtags1.join(' ')}
+Hashtags:
+${hashtags1.join(' ')}
 
-      Part 2:
-      ${part2}
+Part 2:
+${part2}
 
-      Hashtags:
-      ${hashtags2.join(' ')}
+Hashtags:
+${hashtags2.join(' ')}
 
-      Merged Hashtags:
-      ${mergedHashtags.join(' ')}
+Merged Hashtags:
+${mergedHashtags.join(' ')}
     `;
 
     // Send email
@@ -94,9 +92,13 @@ export default async function handler(req, res) {
     });
 
     // Return merged hashtags in response
-    res.status(200).json({ hashtags: mergedHashtags });
+    return NextResponse.json({ hashtags: mergedHashtags });
   } catch (error) {
     console.error('Error in hashtag generation/email:', error);
-    res.status(500).json({ error: 'Failed to generate hashtags and send email.' });
+    return NextResponse.json({ error: 'Failed to generate hashtags and send email.' }, { status: 500 });
   }
+}
+
+export async function GET() {
+  return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
 }
